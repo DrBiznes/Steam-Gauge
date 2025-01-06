@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react"
 import { GameCard } from "./GameCard"
 import { useGaugeGameStore } from "./store"
-import { gaugeApi } from "./api"
 import { Loader2 } from "lucide-react"
+import { useGaugeQueries } from "./hooks/useGaugeQueries"
+import { GameFilters } from "./GameFilters"
 
 export function GaugePage() {
-  const { currentGames, score, highScore, setGames, incrementScore, resetGame, loading, setLoading } = useGaugeGameStore()
+  const { currentGames, score, highScore, incrementScore, resetGame, loading, setLoading } = useGaugeGameStore()
   const [revealed, setRevealed] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { gamesQuery } = useGaugeQueries()
 
-  const fetchNewGames = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const games = await gaugeApi.getRandomGames()
-      setGames([games[0], games[1]])
-    } catch (err) {
-      setError('Failed to fetch games. Please try again.')
-      console.error('Error fetching games:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // Debug logging
   useEffect(() => {
-    fetchNewGames()
+    console.log('Current games:', currentGames)
+    console.log('Loading state:', loading)
+    console.log('Query state:', {
+      isLoading: gamesQuery.isLoading,
+      isFetching: gamesQuery.isFetching,
+      error: gamesQuery.error
+    })
+  }, [currentGames, loading, gamesQuery.isLoading, gamesQuery.isFetching, gamesQuery.error])
+
+  // Fetch initial games when component mounts
+  useEffect(() => {
+    setLoading(true)
+    gamesQuery.refetch()
   }, [])
 
   const handleGuess = (index: number) => {
@@ -41,9 +41,13 @@ export function GaugePage() {
 
     setTimeout(() => {
       setRevealed(false)
-      fetchNewGames()
+      setLoading(true)
+      gamesQuery.refetch()
     }, 2000)
   }
+
+  // Show loading state if either global loading or query loading is true
+  const isLoading = loading || gamesQuery.isLoading || gamesQuery.isFetching
 
   return (
     <div className="flex flex-col items-center gap-8 font-sans">
@@ -54,14 +58,25 @@ export function GaugePage() {
         </div>
       </div>
 
-      {error && (
+      <GameFilters />
+
+      {gamesQuery.error && (
         <div className="text-red-500 font-medium text-center">
-          {error}
+          Failed to fetch games. Please try again.
+          <button 
+            onClick={() => {
+              setLoading(true)
+              gamesQuery.refetch()
+            }}
+            className="ml-2 underline"
+          >
+            Retry
+          </button>
         </div>
       )}
 
       <div className="flex gap-8 items-center justify-center min-h-[400px]">
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin" />
             <span>Loading games...</span>

@@ -1,11 +1,5 @@
 import { Card } from "@/components/ui/card"
-
-interface Game {
-  id: number
-  name: string
-  coverUrl: string
-  steamScore?: number
-}
+import { Game } from "./types"
 
 interface GameCardProps {
   game: Game | null
@@ -14,7 +8,13 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
-  if (!game) return null
+  if (!game) {
+    return (
+      <Card className="w-[300px] h-[400px] flex items-center justify-center text-muted-foreground">
+        No game loaded
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -26,6 +26,9 @@ export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
           src={game.coverUrl}
           alt={game.name}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = 'https://placehold.co/300x400?text=No+Image'
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
       </div>
@@ -35,6 +38,11 @@ export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
         {revealed && game.steamScore !== undefined && (
           <div className="text-lg font-semibold">
             Steam Score: {game.steamScore}%
+          </div>
+        )}
+        {revealed && game.genres && (
+          <div className="text-sm opacity-75 mt-1">
+            {game.genres.join(' • ')}
           </div>
         )}
       </div>

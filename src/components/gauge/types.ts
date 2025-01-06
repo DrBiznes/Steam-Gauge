@@ -7,4 +7,11 @@ export interface Game {
   genres?: string[]
   releaseDate?: string
   metacritic?: number
+  price?: {
+    currency: string
+    initial: number
+    final: number
+    discount_percent: number
+  }
+  totalReviews?: number
 } 

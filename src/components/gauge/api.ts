@@ -1,38 +1,104 @@
-import { Game } from './types.ts'
+import { Game } from './types'
 
-// Steam API endpoints
+// IGDB API endpoints
+const IGDB_API = 'https://api.igdb.com/v4'
+const TWITCH_AUTH = 'https://id.twitch.tv/oauth2/token'
+
+// Steam API endpoint for reviews
 const STEAM_API_BASE = 'https://store.steampowered.com/api'
-const STEAM_STORE_API = 'https://store.steampowered.com/api/appdetails'
 
-interface SteamReviewResponse {
-  query_summary: {
-    review_score: number
-    review_score_desc: string
-    total_positive: number
-    total_negative: number
-    total_reviews: number
+interface IGDBGame {
+  id: number
+  name: string
+  cover: { url: string }
+  genres: Array<{ name: string }>
+  first_release_date: number
+  rating: number
+  slug: string
+  external_games: Array<{
+    category: number // 1 for Steam
+    uid: string // Steam AppID
+  }>
+}
+
+// Cache for auth token
+let authToken: string | null = null
+let tokenExpiry: number = 0
+
+const FALLBACK_GENRES = [
+  "Action",
+  "Adventure",
+  "RPG",
+  "Strategy",
+  "FPS",
+  "Sports",
+  "Racing",
+  "Simulation",
+  "Indie",
+  "Free to Play"
+]
+
+async function getIGDBToken(): Promise<string> {
+  if (authToken && Date.now() < tokenExpiry) {
+    return authToken
+  }
+
+  const clientId = import.meta.env.VITE_TWITCH_CLIENT_ID
+  const clientSecret = import.meta.env.VITE_TWITCH_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Missing Twitch API credentials')
+  }
+
+  try {
+    const response = await fetch(TWITCH_AUTH, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'client_credentials'
+      })
+    })
+
+    const data = await response.json()
+    if (!data.access_token) {
+      throw new Error('Failed to get access token')
+    }
+    
+    authToken = data.access_token
+    tokenExpiry = Date.now() + (data.expires_in * 1000)
+    return authToken
+  } catch (error) {
+    console.error('Error getting IGDB token:', error)
+    throw error
   }
 }
 
-interface SteamAppDetails {
-  success: boolean
-  data: {
-    steam_appid: number
-    name: string
-    header_image: string
-    genres: Array<{ id: string, description: string }>
-    release_date: { coming_soon: boolean, date: string }
-    metacritic?: { score: number }
-    categories?: Array<{ id: number, description: string }>
-  }
+async function queryIGDB(endpoint: string, query: string): Promise<any> {
+  const token = await getIGDBToken()
+
+  const response = await fetch(`${IGDB_API}/${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Client-ID': process.env.VITE_TWITCH_CLIENT_ID!,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: query
+  })
+
+  return response.json()
 }
 
-async function getSteamReviews(appId: number): Promise<number> {
+async function getSteamScore(appId: string): Promise<number> {
   try {
     const response = await fetch(
       `${STEAM_API_BASE}/appreviews/${appId}?json=1&language=all`
     )
-    const data: SteamReviewResponse = await response.json()
+    const data = await response.json()
     const { total_positive, total_negative } = data.query_summary
     const total = total_positive + total_negative
     return total > 0 ? Math.round((total_positive / total) * 100) : 0
@@ -42,150 +108,151 @@ async function getSteamReviews(appId: number): Promise<number> {
   }
 }
 
-async function getAppDetails(appId: number): Promise<SteamAppDetails | null> {
-  try {
-    const response = await fetch(
-      `${STEAM_STORE_API}?appids=${appId}&l=english`
-    )
-    const data = await response.json()
-    return data[appId] as SteamAppDetails
-  } catch (error) {
-    console.error('Error fetching app details:', error)
-    return null
-  }
-}
-
-// Popular Steam games list (we can expand this)
-const POPULAR_GAME_IDS = [
-  570,    // Dota 2
-  730,    // CS:GO
-  440,    // Team Fortress 2
-  230410, // Warframe
-  252950, // Rocket League
-  1091500, // Cyberpunk 2077
-  1174180, // Red Dead Redemption 2
-  292030, // The Witcher 3
-  578080, // PUBG
-  359550, // Rainbow Six Siege
-  271590, // GTA V
-  1245620, // Elden Ring
-  1462040, // Baldur's Gate 3
-  814380, // Sekiro
-  582010, // Monster Hunter: World
-  1172470, // Apex Legends
-  346110, // ARK
-  252490, // Rust
-  105600, // Terraria
-  238960, // Path of Exile
-  // Add more games as needed
-]
-
 async function getRandomGames(): Promise<Game[]> {
   try {
-    // Get two random game IDs
-    const randomIds = POPULAR_GAME_IDS
+    // Get random games from IGDB with Steam IDs
+    const query = `
+      fields name, cover.url, genres.name, first_release_date, rating, external_games.*, slug;
+      where external_games.category = 1 & rating != null & cover != null;
+      sort rating desc;
+      limit 50;
+    `
+    const games: IGDBGame[] = await queryIGDB('games', query)
+    
+    // Shuffle and get 2 random games
+    const shuffled = games
+      .filter(game => game.external_games?.length > 0)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
 
-    // Fetch details and reviews for both games in parallel
-    const gamesData = await Promise.all(
-      randomIds.map(async (appId) => {
-        const [details, steamScore] = await Promise.all([
-          getAppDetails(appId),
-          getSteamReviews(appId)
-        ])
-
-        if (!details?.success) {
-          throw new Error(`Failed to fetch details for app ${appId}`)
-        }
-
-        return {
-          id: appId,
-          name: details.data.name,
-          coverUrl: details.data.header_image,
-          steamScore,
-          steamId: appId,
-          genres: details.data.genres.map(g => g.description),
-          releaseDate: details.data.release_date.date,
-          metacritic: details.data.metacritic?.score
-        }
-      })
-    )
-
-    return gamesData
-  } catch (error) {
-    console.error('Error fetching games:', error)
-    // Return mock data if API calls fail
-    return [
-      {
-        id: 570,
-        name: "Dota 2",
-        coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/570/header.jpg",
-        steamScore: 85,
-        steamId: 570,
-        genres: ["Action", "Free to Play", "Strategy"],
-        releaseDate: "2013-07-09",
-        metacritic: 90
-      },
-      {
-        id: 730,
-        name: "Counter-Strike 2",
-        coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg",
-        steamScore: 88,
-        steamId: 730,
-        genres: ["Action", "Free to Play"],
-        releaseDate: "2012-08-21",
-        metacritic: 88
+    // Convert to our Game type and fetch Steam scores
+    const result = await Promise.all(shuffled.map(async game => {
+      const steamId = game.external_games[0].uid
+      const steamScore = await getSteamScore(steamId)
+      
+      return {
+        id: game.id,
+        steamId: parseInt(steamId),
+        name: game.name,
+        coverUrl: game.cover.url.replace('thumb', 'cover_big'),
+        steamScore,
+        genres: game.genres.map(g => g.name),
+        releaseDate: new Date(game.first_release_date * 1000).toISOString(),
+        metacritic: Math.round(game.rating)
       }
-    ]
+    }))
+
+    return result
+  } catch (error) {
+    console.error('Error getting random games:', error)
+    throw error
   }
 }
 
-// Function to get games by genre
 async function getGamesByGenre(genre: string): Promise<Game[]> {
   try {
-    const gamesInGenre = POPULAR_GAME_IDS.filter(async (appId) => {
-      const details = await getAppDetails(appId)
-      return details?.data.genres.some(g => 
-        g.description.toLowerCase() === genre.toLowerCase()
-      )
-    })
-
-    // Get two random games from the filtered list
-    const randomIds = gamesInGenre
+    // Get games by genre from IGDB
+    const query = `
+      fields name, cover.url, genres.name, first_release_date, rating, external_games.*, slug;
+      where external_games.category = 1 & rating != null & cover != null & genres.name = "${genre}";
+      sort rating desc;
+      limit 50;
+    `
+    const games: IGDBGame[] = await queryIGDB('games', query)
+    
+    // Shuffle and get 2 random games
+    const shuffled = games
+      .filter(game => game.external_games?.length > 0)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
 
-    return getRandomGames() // Reuse existing function for now
+    // Convert to our Game type and fetch Steam scores
+    const result = await Promise.all(shuffled.map(async game => {
+      const steamId = game.external_games[0].uid
+      const steamScore = await getSteamScore(steamId)
+      
+      return {
+        id: game.id,
+        steamId: parseInt(steamId),
+        name: game.name,
+        coverUrl: game.cover.url.replace('thumb', 'cover_big'),
+        steamScore,
+        genres: game.genres.map(g => g.name),
+        releaseDate: new Date(game.first_release_date * 1000).toISOString(),
+        metacritic: Math.round(game.rating)
+      }
+    }))
+
+    return result.length >= 2 ? result : getRandomGames()
   } catch (error) {
-    console.error('Error fetching games by genre:', error)
-    return getRandomGames() // Fallback to random games
+    console.error('Error getting games by genre:', error)
+    return getRandomGames()
   }
 }
 
-// Function to get games by year
 async function getGamesByYear(year: number): Promise<Game[]> {
   try {
-    const gamesInYear = POPULAR_GAME_IDS.filter(async (appId) => {
-      const details = await getAppDetails(appId)
-      const gameYear = new Date(details?.data.release_date.date || '').getFullYear()
-      return gameYear === year
-    })
-
-    // Get two random games from the filtered list
-    const randomIds = gamesInYear
+    // Get games by year from IGDB
+    const startDate = Math.floor(new Date(`${year}-01-01`).getTime() / 1000)
+    const endDate = Math.floor(new Date(`${year}-12-31`).getTime() / 1000)
+    
+    const query = `
+      fields name, cover.url, genres.name, first_release_date, rating, external_games.*, slug;
+      where external_games.category = 1 & rating != null & cover != null & 
+            first_release_date >= ${startDate} & first_release_date <= ${endDate};
+      sort rating desc;
+      limit 50;
+    `
+    const games: IGDBGame[] = await queryIGDB('games', query)
+    
+    // Shuffle and get 2 random games
+    const shuffled = games
+      .filter(game => game.external_games?.length > 0)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
 
-    return getRandomGames() // Reuse existing function for now
+    // Convert to our Game type and fetch Steam scores
+    const result = await Promise.all(shuffled.map(async game => {
+      const steamId = game.external_games[0].uid
+      const steamScore = await getSteamScore(steamId)
+      
+      return {
+        id: game.id,
+        steamId: parseInt(steamId),
+        name: game.name,
+        coverUrl: game.cover.url.replace('thumb', 'cover_big'),
+        steamScore,
+        genres: game.genres.map(g => g.name),
+        releaseDate: new Date(game.first_release_date * 1000).toISOString(),
+        metacritic: Math.round(game.rating)
+      }
+    }))
+
+    return result.length >= 2 ? result : getRandomGames()
   } catch (error) {
-    console.error('Error fetching games by year:', error)
-    return getRandomGames() // Fallback to random games
+    console.error('Error getting games by year:', error)
+    return getRandomGames()
+  }
+}
+
+async function getAvailableGenres(): Promise<string[]> {
+  try {
+    const query = `
+      fields name;
+      sort name asc;
+      limit 50;
+    `
+    const genres = await queryIGDB('genres', query)
+    return genres.map((g: { name: string }) => g.name)
+  } catch (error) {
+    console.error('Error getting genres:', error)
+    return FALLBACK_GENRES
   }
 }
 
 export const gaugeApi = {
   getRandomGames,
   getGamesByGenre,
-  getGamesByYear
+  getGamesByYear,
+  getAvailableGenres
 } 
