@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { gaugeApi } from "../api"
+import { gaugeApi } from "../../../services/api"
 import { useGaugeGameStore } from "../store"
 import { useCallback } from "react"
 import { Game } from "../types"

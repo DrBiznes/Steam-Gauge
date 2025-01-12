@@ -1,4 +1,4 @@
-import { Game } from './types'
+import { Game } from '../components/gauge/types'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
