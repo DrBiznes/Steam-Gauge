@@ -29,24 +29,9 @@ const POPULAR_GAMES_1: Game[] = [
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/library_600x900.jpg"
   },
   {
-    id: 4,
-    title: "Apex Legends",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/library_600x900.jpg"
-  },
-  {
     id: 9,
     title: "Baldur's Gate 3",
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
-  },
-  {
-    id: 10,
-    title: "Lethal Company",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1966720/library_600x900.jpg"
-  },
-  {
-    id: 11,
-    title: "Palworld",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/library_600x900.jpg"
   }
 ]
 
@@ -67,24 +52,9 @@ const POPULAR_GAMES_2: Game[] = [
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
   },
   {
-    id: 8,
-    title: "Cyberpunk 2077",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900.jpg"
-  },
-  {
     id: 12,
     title: "Starfield",
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900.jpg"
-  },
-  {
-    id: 13,
-    title: "Hogwarts Legacy",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/library_600x900.jpg"
-  },
-  {
-    id: 14,
-    title: "Sea of Thieves",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1172620/library_600x900.jpg"
   }
 ]
 
@@ -101,7 +71,12 @@ function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
         if (rect.top < window.innerHeight && rect.bottom > 0) {
           const parentTop = rect.top
           const scrollProgress = -parentTop * speed
-          columnRef.current.style.transform = `translateY(${scrollProgress}px)`
+          
+          // Limit the maximum scroll distance to prevent scrolling past the bottom
+          const maxScroll = window.innerHeight * 0.2 // Limit to 30% of viewport height
+          const limitedScroll = Math.min(scrollProgress, maxScroll)
+          
+          columnRef.current.style.transform = `translateY(${limitedScroll}px)`
         }
       }
     }

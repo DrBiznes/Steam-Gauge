@@ -1,0 +1,48 @@
+.menu-button {
+  width: 100%;
+  padding: 3rem;
+  text-align: left;
+  background: transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.menu-button:hover {
+  background: #F74843;
+}
+
+.menu-title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: white;
+  line-height: 1.1;
+}
+
+.menu-description {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  white-space: normal;
+  max-width: 48rem;
+}
+
+.menu-header {
+  margin-bottom: 8rem;
+}
+
+.menu-item {
+  margin-bottom: 12rem;
+}
+
+@media (min-width: 768px) {
+  .menu-item {
+    margin-bottom: 6rem;
+  }
+}
+
+.menu-item:hover .menu-title,
+.menu-item:hover .menu-description {
+  color: white;
+}

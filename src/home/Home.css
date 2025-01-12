@@ -1,12 +1,12 @@
 .home-container {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - 88px); /* Only subtract footer height now */
-  margin-top: -64px; /* Pull up to cover header area */
-  padding-top: 64px; /* Add padding to prevent content from going under header */
+  height: 150vh;
+  margin-top: -64px;
+  padding-top: 64px;
+  overflow: hidden;
 }
 
-/* Background layer with frosted effect */
 .home-container::before {
   content: '';
   position: absolute;
@@ -16,7 +16,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  filter: blur(8px);
+  filter: brightness(0.4);
   z-index: 0;
 }
 
@@ -26,14 +26,13 @@
   height: 100%;
   max-width: 1536px;
   margin: 0 auto;
-  padding: 2rem;
-  padding-top: 5rem; /* Add extra padding to account for header height */
+  padding: 3rem;
   z-index: 1;
 }
 
 .content-glass {
   height: 100%;
-  padding: 2rem;
+  padding: 3rem;
   color: white;
 }
 
