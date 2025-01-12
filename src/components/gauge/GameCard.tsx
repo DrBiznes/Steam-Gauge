@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { Game } from "./types"
+import "./gauge.css"
 
 interface GameCardProps {
   game: Game | null
@@ -8,44 +9,95 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
+  const getPlaceholderImage = () => {
+    if (window.innerWidth <= 768) {
+      return 'https://placehold.co/400x225?text=No+Image'
+    }
+    return 'https://placehold.co/800x343?text=No+Image'
+  }
+
   if (!game) {
     return (
-      <Card className="w-[300px] h-[400px] flex items-center justify-center text-muted-foreground">
+      <Card className="game-card flex items-center justify-center text-muted-foreground">
         No game loaded
       </Card>
     )
   }
 
-  return (
-    <Card
-      className="w-[300px] h-[400px] relative cursor-pointer hover:scale-105 transition-transform"
-      onClick={onClick}
-    >
-      <div className="absolute inset-0 rounded-xl overflow-hidden">
-        <img
-          src={game.coverUrl}
-          alt={game.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.src = 'https://placehold.co/300x400?text=No+Image'
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-      </div>
-      
-      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-        <h3 className="text-xl font-bold mb-2">{game.name}</h3>
-        {revealed && game.steamScore !== undefined && (
-          <div className="text-lg font-semibold">
-            Steam Score: {game.steamScore}%
-          </div>
+  const getReviewStatus = (score: number) => {
+    if (score >= 70) return "positive"
+    if (score >= 50) return "mixed"
+    return "negative"
+  }
+
+  const reviewStatus = game.steamScore ? getReviewStatus(game.steamScore) : null
+
+  const GameInfo = () => (
+    <>
+      {game.steamScore !== undefined && (
+        <div className={`review-score ${reviewStatus}`}>
+          <span>{game.steamScore}%</span>
+          <span>•</span>
+          <span>{reviewStatus} reviews</span>
+        </div>
+      )}
+      <h3 className="game-card-title">{game.name}</h3>
+      <div className="game-metadata">
+        {game.totalReviews && (
+          <div>Total Reviews: {game.totalReviews.toLocaleString()}</div>
         )}
-        {revealed && game.genres && (
-          <div className="text-sm opacity-75 mt-1">
+        {game.genres && (
+          <div className="opacity-75">
             {game.genres.join(' • ')}
           </div>
         )}
+        {game.price && (
+          <div className="flex items-center gap-2">
+            {game.price.discount_percent > 0 && (
+              <span className="line-through opacity-75">
+                ${(game.price.initial / 100).toFixed(2)}
+              </span>
+            )}
+            <span className="font-semibold">
+              ${(game.price.final / 100).toFixed(2)}
+            </span>
+            {game.price.discount_percent > 0 && (
+              <span className="text-green-500">
+                -{game.price.discount_percent}%
+              </span>
+            )}
+          </div>
+        )}
       </div>
-    </Card>
+    </>
+  )
+
+  return (
+    <div>
+      <Card 
+        className="game-card" 
+        onClick={onClick}
+        data-revealed={revealed}
+      >
+        <img
+          src={game.coverUrl}
+          alt={game.name}
+          className="game-card-image"
+          onError={(e) => {
+            e.currentTarget.src = getPlaceholderImage()
+          }}
+        />
+        <div className="game-card-overlay" />
+        
+        <div className="game-card-content">
+          <GameInfo />
+        </div>
+      </Card>
+      {revealed && (
+        <div className="mobile-game-info">
+          <GameInfo />
+        </div>
+      )}
+    </div>
   )
 } 

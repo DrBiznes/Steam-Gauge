@@ -10,7 +10,8 @@ export function GaugePage() {
     games, 
     score, 
     highScore, 
-    incrementScore, 
+    incrementScore,
+    resetScore, 
     loading, 
     setLoading,
     resetCurrentGames 
@@ -21,7 +22,6 @@ export function GaugePage() {
 
   // Initial load
   useEffect(() => {
-    console.log('Initial load effect')
     if (gamesQuery.data && (!games[0] || !games[1])) {
       console.log('Loading initial games')
       getNewGames()
@@ -39,9 +39,14 @@ export function GaugePage() {
     const game1Score = games[0].steamScore || 0
     const game2Score = games[1].steamScore || 0
     
-    if ((index === 0 && game1Score > game2Score) || 
-        (index === 1 && game2Score > game1Score)) {
+    const isCorrect = (index === 0 && game1Score > game2Score) || 
+                     (index === 1 && game2Score > game1Score)
+
+    if (isCorrect) {
       incrementScore()
+    } else {
+      // Reset score to 0 on wrong guess
+      resetScore()
     }
 
     // Show the result for a moment, then get new games
@@ -94,6 +99,11 @@ export function GaugePage() {
         <p className="text-lg">
           Click on the game you think has a higher Steam user review score!
         </p>
+        {revealed && (
+          <p className="text-lg mt-2">
+            Steam Scores: {games[0]?.name}: {games[0]?.steamScore}% vs {games[1]?.name}: {games[1]?.steamScore}%
+          </p>
+        )}
       </div>
     </div>
   )

@@ -17,6 +17,7 @@ interface GaugeGameStore {
   addShownGames: (games: Game[]) => void
   resetShownGames: () => void
   incrementScore: () => void
+  resetScore: () => void
   resetGame: () => void
   resetCurrentGames: () => void
 }
@@ -36,12 +37,14 @@ export const useGaugeGameStore = create<GaugeGameStore>()(
       setSelectedGenre: (genre) => set({ 
         selectedGenre: genre, 
         selectedYear: null,
-        shownGameIds: new Set() // Reset shown games when changing genre
+        shownGameIds: new Set(), // Reset shown games when changing genre
+        score: 0 // Reset score when changing filters
       }),
       setSelectedYear: (year) => set({ 
         selectedYear: year, 
         selectedGenre: null,
-        shownGameIds: new Set() // Reset shown games when changing year
+        shownGameIds: new Set(), // Reset shown games when changing year
+        score: 0 // Reset score when changing filters
       }),
       addShownGames: (games) => set((state) => ({
         shownGameIds: new Set([...Array.from(state.shownGameIds), ...games.map(g => g.id)])
@@ -51,19 +54,27 @@ export const useGaugeGameStore = create<GaugeGameStore>()(
         score: state.score + 1,
         highScore: Math.max(state.score + 1, state.highScore)
       })),
-      resetGame: () => set({ 
+      resetScore: () => set(() => ({ 
+        score: 0,
+        // Don't reset highScore here as we want to keep it
+      })),
+      resetGame: () => set(() => ({ 
         score: 0, 
         games: [null, null],
         selectedGenre: null,
         selectedYear: null,
-        shownGameIds: new Set()
-      }),
+        shownGameIds: new Set(),
+        // Keep the highScore
+      })),
       resetCurrentGames: () => set({ games: [null, null] })
     }),
     {
       name: 'gauge-game-storage',
+      // Only persist these specific fields
       partialize: (state) => ({ 
-        highScore: state.highScore 
+        highScore: state.highScore,
+        selectedGenre: state.selectedGenre,
+        selectedYear: state.selectedYear
       })
     }
   )
