@@ -1,4 +1,5 @@
 import './GameCarousel.css'
+import { useEffect, useRef } from 'react'
 
 interface Game {
   id: number
@@ -8,7 +9,7 @@ interface Game {
 
 interface GameCarouselProps {
   games: Game[]
-  direction: "up" | "down"
+  speed?: number
 }
 
 const POPULAR_GAMES_1: Game[] = [
@@ -31,6 +32,21 @@ const POPULAR_GAMES_1: Game[] = [
     id: 4,
     title: "Apex Legends",
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/library_600x900.jpg"
+  },
+  {
+    id: 9,
+    title: "Baldur's Gate 3",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+  },
+  {
+    id: 10,
+    title: "Lethal Company",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1966720/library_600x900.jpg"
+  },
+  {
+    id: 11,
+    title: "Palworld",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/library_600x900.jpg"
   }
 ]
 
@@ -54,34 +70,62 @@ const POPULAR_GAMES_2: Game[] = [
     id: 8,
     title: "Cyberpunk 2077",
     coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900.jpg"
+  },
+  {
+    id: 12,
+    title: "Starfield",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900.jpg"
+  },
+  {
+    id: 13,
+    title: "Hogwarts Legacy",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/library_600x900.jpg"
+  },
+  {
+    id: 14,
+    title: "Sea of Thieves",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1172620/library_600x900.jpg"
   }
 ]
 
-function GameCarousel({ games, direction }: GameCarouselProps) {
-  const duplicatedGames = [...games, ...games, ...games]
-  
+function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
+  const columnRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (columnRef.current) {
+        const rect = columnRef.current.parentElement?.getBoundingClientRect()
+        if (!rect) return
+
+        // Only apply parallax when the parent is in view
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          const parentTop = rect.top
+          const scrollProgress = -parentTop * speed
+          columnRef.current.style.transform = `translateY(${scrollProgress}px)`
+        }
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [speed])
+
   return (
-    <div className="game-carousel">
-      <div 
-        className="game-carousel-track"
-        data-direction={direction === "down" ? "down" : "up"}
-        style={{ '--scroll-duration': '20s' } as React.CSSProperties}
-      >
-        {duplicatedGames.map((game, index) => (
-          <div 
-            key={`${game.id}-${index}`}
-            className="game-item"
-          >
-            <div className="game-cover">
-              <img
-                src={game.coverUrl}
-                alt={game.title}
-                loading="lazy"
-              />
-            </div>
+    <div className="game-carousel" ref={columnRef}>
+      {games.map((game, index) => (
+        <div 
+          key={`${game.id}-${index}`}
+          className="game-item"
+        >
+          <div className="game-cover">
+            <img
+              src={game.coverUrl}
+              alt={game.title}
+              loading="lazy"
+            />
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   )
 }
