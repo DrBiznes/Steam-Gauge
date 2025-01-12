@@ -6,48 +6,55 @@ import { useGaugeQueries } from "./hooks/useGaugeQueries"
 import { GameFilters } from "./GameFilters"
 
 export function GaugePage() {
-  const { currentGames, score, highScore, incrementScore, resetGame, loading, setLoading } = useGaugeGameStore()
+  const { 
+    games, 
+    score, 
+    highScore, 
+    incrementScore, 
+    loading, 
+    setLoading,
+    resetCurrentGames 
+  } = useGaugeGameStore()
+  
   const [revealed, setRevealed] = useState(false)
-  const { gamesQuery } = useGaugeQueries()
+  const { gamesQuery, getNewGames } = useGaugeQueries()
 
-  // Debug logging
+  // Initial load
   useEffect(() => {
-    console.log('Current games:', currentGames)
-    console.log('Loading state:', loading)
-    console.log('Query state:', {
-      isLoading: gamesQuery.isLoading,
-      isFetching: gamesQuery.isFetching,
-      error: gamesQuery.error
-    })
-  }, [currentGames, loading, gamesQuery.isLoading, gamesQuery.isFetching, gamesQuery.error])
-
-  // Fetch initial games when component mounts
-  useEffect(() => {
-    setLoading(true)
-    gamesQuery.refetch()
-  }, [])
+    console.log('Initial load effect')
+    if (gamesQuery.data && (!games[0] || !games[1])) {
+      console.log('Loading initial games')
+      getNewGames()
+    } else if (!gamesQuery.data) {
+      console.log('Fetching initial data')
+      setLoading(true)
+      gamesQuery.refetch()
+    }
+  }, [gamesQuery.data])
 
   const handleGuess = (index: number) => {
-    if (revealed || !currentGames[0] || !currentGames[1]) return
+    if (revealed || !games[0] || !games[1]) return
 
     setRevealed(true)
-    const game1Score = currentGames[0].steamScore || 0
-    const game2Score = currentGames[1].steamScore || 0
+    const game1Score = games[0].steamScore || 0
+    const game2Score = games[1].steamScore || 0
     
     if ((index === 0 && game1Score > game2Score) || 
         (index === 1 && game2Score > game1Score)) {
       incrementScore()
     }
 
+    // Show the result for a moment, then get new games
     setTimeout(() => {
+      console.log('Time to show new games')
       setRevealed(false)
-      setLoading(true)
-      gamesQuery.refetch()
+      resetCurrentGames() // Clear current games
+      getNewGames() // Select new ones from cache
     }, 2000)
   }
 
   // Show loading state if either global loading or query loading is true
-  const isLoading = loading || gamesQuery.isLoading || gamesQuery.isFetching
+  const isLoading = loading || gamesQuery.isLoading || !games[0] || !games[1]
 
   return (
     <div className="flex flex-col items-center gap-8 font-sans">
@@ -60,21 +67,6 @@ export function GaugePage() {
 
       <GameFilters />
 
-      {gamesQuery.error && (
-        <div className="text-red-500 font-medium text-center">
-          Failed to fetch games. Please try again.
-          <button 
-            onClick={() => {
-              setLoading(true)
-              gamesQuery.refetch()
-            }}
-            className="ml-2 underline"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
       <div className="flex gap-8 items-center justify-center min-h-[400px]">
         {isLoading ? (
           <div className="flex items-center gap-2">
@@ -84,13 +76,13 @@ export function GaugePage() {
         ) : (
           <>
             <GameCard
-              game={currentGames[0]}
+              game={games[0]}
               revealed={revealed}
               onClick={() => handleGuess(0)}
             />
             <div className="text-2xl font-bold">VS</div>
             <GameCard
-              game={currentGames[1]}
+              game={games[1]}
               revealed={revealed}
               onClick={() => handleGuess(1)}
             />

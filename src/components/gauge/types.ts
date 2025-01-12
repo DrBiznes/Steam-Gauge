@@ -2,9 +2,9 @@ export interface Game {
   id: number
   name: string
   coverUrl: string
-  steamScore?: number
+  steamScore: number
   steamId: number
-  genres?: string[]
+  genres: string[]
   releaseDate?: string
   metacritic?: number
   price?: {
