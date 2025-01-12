@@ -1,0 +1,42 @@
+.home-container {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 88px); /* Only subtract footer height now */
+  margin-top: -64px; /* Pull up to cover header area */
+  padding-top: 64px; /* Add padding to prevent content from going under header */
+}
+
+/* Background layer with frosted effect */
+.home-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/valvebg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(8px);
+  z-index: 0;
+}
+
+.home-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-top: 5rem; /* Add extra padding to account for header height */
+  z-index: 1;
+}
+
+.content-glass {
+  height: 100%;
+  padding: 2rem;
+  color: white;
+}
+
+.content-glass > div {
+  height: 100%;
+} 

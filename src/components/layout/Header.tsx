@@ -1,10 +1,18 @@
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@/components/ui/navigation-menu"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
 export function Header() {
+  const location = useLocation()
+  const isHomePage = location.pathname === "/"
+
   return (
-    <header className="border-b border-white/10 bg-[#F74843]">
+    <header className={cn(
+      "z-50 border-b transition-all duration-200",
+      isHomePage 
+        ? "absolute top-0 left-0 right-0 bg-transparent border-transparent" 
+        : "bg-[#F74843] border-white/10"
+    )}>
       <div className="container flex h-16 max-w-screen-2xl items-center">
         <NavigationMenu>
           <NavigationMenuList>

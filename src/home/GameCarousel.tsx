@@ -1,4 +1,4 @@
-import Marquee from 'react-fast-marquee'
+import './GameCarousel.css'
 
 interface Game {
   id: number
@@ -58,33 +58,30 @@ const POPULAR_GAMES_2: Game[] = [
 ]
 
 function GameCarousel({ games, direction }: GameCarouselProps) {
-  // Duplicate the games array to ensure continuous scrolling
   const duplicatedGames = [...games, ...games, ...games]
   
   return (
-    <div className="h-[calc(100vh-16rem)] bg-black/10 rounded-lg overflow-hidden">
-      <Marquee
-        direction={direction}
-        speed={20}
-        gradient={false}
-        pauseOnHover={true}
+    <div className="game-carousel">
+      <div 
+        className="game-carousel-track"
+        data-direction={direction === "down" ? "down" : "up"}
+        style={{ '--scroll-duration': '20s' } as React.CSSProperties}
       >
         {duplicatedGames.map((game, index) => (
           <div 
             key={`${game.id}-${index}`}
-            className="p-2"
+            className="game-item"
           >
-            <div className="w-[140px] aspect-[2/3] rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
+            <div className="game-cover">
               <img
                 src={game.coverUrl}
                 alt={game.title}
-                className="w-full h-full object-cover"
                 loading="lazy"
               />
             </div>
           </div>
         ))}
-      </Marquee>
+      </div>
     </div>
   )
 }
