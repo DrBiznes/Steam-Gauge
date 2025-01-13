@@ -27,15 +27,15 @@ export function GameList() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col gap-12 max-w-4xl">
-      <div className="space-y-6 menu-header">
-        <h2 className="font-black text-7xl text-white">Gaming is Good</h2>
-        <p className="text-xl font-medium text-white/90 leading-relaxed">
+    <>
+      <div className="menu-header">
+        <h2 className="font-black text-6xl text-white">Gaming is Good</h2>
+        <p className="text-lg font-medium text-white/90 leading-relaxed mt-4">
           Welcome to our collection of innovative Steam tools and games. We've created these applications to enhance your Steam experience, helping you explore your gaming habits and discover new titles in unique ways.
         </p>
       </div>
       
-      <div className="flex flex-col">
+      <div className="menu-list">
         {GAMES.map((game) => (
           <div key={game.id} className="menu-item">
             <Button
@@ -53,6 +53,6 @@ export function GameList() {
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 } 
