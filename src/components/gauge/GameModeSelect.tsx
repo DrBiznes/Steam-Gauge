@@ -7,16 +7,16 @@ import { Trophy, Clock, Gamepad2 } from "lucide-react"
 import Marquee from "react-fast-marquee"
 
 const POPULAR_GENRES = [
+  { value: "Indie", label: "Indie" },
   { value: "Action", label: "Action" },
   { value: "Strategy", label: "Strategy" },
   { value: "RPG", label: "RPG" },
-  { value: "Indie", label: "Indie" },
   { value: "Adventure", label: "Adventure" },
   { value: "Sports", label: "Sports" },
   { value: "Simulation", label: "Simulation" },
   { value: "Early+Access", label: "Early Access" },
-  { value: "MMO", label: "MMO" },
-  { value: "Free", label: "Free to Play" }
+  { value: "Free+to+Play", label: "Free to Play" },
+  { value: "Racing", label: "Racing" }
 ]
 
 interface ModeCardProps {
@@ -167,7 +167,7 @@ export function GameModeSelect() {
             
             <div className="score-list">
               {POPULAR_GENRES.map((genre) => {
-                const { currentScore, highScore } = getScores('genre', genre.value)
+                const { highScore } = getScores('genre', genre.value)
                 if (highScore > 0) {
                   return (
                     <div key={genre.value} className="score-list-item flex items-center justify-between text-muted-foreground">
