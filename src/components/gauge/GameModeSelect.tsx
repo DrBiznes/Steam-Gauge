@@ -7,16 +7,13 @@ import { Trophy, Clock, Gamepad2 } from "lucide-react"
 import Marquee from "react-fast-marquee"
 
 const POPULAR_GENRES = [
-  { value: "Indie", label: "Indie" },
   { value: "Action", label: "Action" },
-  { value: "Strategy", label: "Strategy" },
+  { value: "CO-OP", label: "Co-op" },
+  { value: "Indie", label: "Indie" },
+  { value: "MMO", label: "MMO" },
   { value: "RPG", label: "RPG" },
-  { value: "Adventure", label: "Adventure" },
-  { value: "Sports", label: "Sports" },
   { value: "Simulation", label: "Simulation" },
-  { value: "Early+Access", label: "Early Access" },
-  { value: "Free+to+Play", label: "Free to Play" },
-  { value: "Racing", label: "Racing" }
+  { value: "Strategy", label: "Strategy" }
 ]
 
 interface ModeCardProps {
@@ -41,7 +38,7 @@ function ModeCard({ title, description, icon, variant, currentScore, highScore, 
               gradient={false}
               speed={40}
               delay={2}
-              pauseOnHover={true}
+              pauseOnHover={false}
             >
               <CardTitle className="card-title whitespace-nowrap">{title}</CardTitle>
               <span className="mx-8 text-white/90">•</span>
@@ -53,20 +50,29 @@ function ModeCard({ title, description, icon, variant, currentScore, highScore, 
         </div>
         <CardDescription className="card-description">{description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-3">
-          {highScore !== undefined && (
-            <div className="flex items-center gap-3 text-muted-foreground">
+      <CardContent className="card-content">
+        <div className="flex flex-col h-full">
+          <button 
+            className="play-button"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click
+              onSelect();
+            }}
+          >
+            Play Game
+          </button>
+          <div className="scores-container mt-auto">
+            <div className="flex items-center gap-3 text-muted-foreground mb-2">
               <Trophy className="w-6 h-6" />
-              <span>High Score: {highScore}</span>
+              <span>High Score: {highScore || 0}</span>
             </div>
-          )}
-          {currentScore !== undefined && currentScore > 0 && (
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <Gamepad2 className="w-6 h-6" />
-              <span>Current Score: {currentScore}</span>
-            </div>
-          )}
+            {variant !== 'genre' && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Gamepad2 className="w-6 h-6" />
+                <span>Current Score: {currentScore || 0}</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -131,7 +137,7 @@ export function GameModeSelect() {
                   gradient={false}
                   speed={40}
                   delay={2}
-                  pauseOnHover={true}
+                  pauseOnHover={false}
                 >
                   <CardTitle className="card-title whitespace-nowrap">By Genre</CardTitle>
                   <span className="mx-8 text-white/90">•</span>
@@ -168,18 +174,15 @@ export function GameModeSelect() {
             <div className="score-list">
               {POPULAR_GENRES.map((genre) => {
                 const { highScore } = getScores('genre', genre.value)
-                if (highScore > 0) {
-                  return (
-                    <div key={genre.value} className="score-list-item flex items-center justify-between text-muted-foreground">
-                      <span>{genre.label}</span>
-                      <div className="flex items-center gap-2">
-                        <Trophy className="w-5 h-5" />
-                        <span>{highScore}</span>
-                      </div>
+                return (
+                  <div key={genre.value} className="score-list-item flex items-center justify-between text-muted-foreground">
+                    <span>{genre.label}</span>
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-5 h-5" />
+                      <span>{highScore || 0}</span>
                     </div>
-                  )
-                }
-                return null
+                  </div>
+                )
               })}
             </div>
           </CardContent>

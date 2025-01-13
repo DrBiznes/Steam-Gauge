@@ -62,7 +62,7 @@ export function useGaugeQueries() {
         setLoading(false)
       }
     },
-    enabled: !!selectedGameMode,
+    enabled: selectedGameMode === 'genre' ? !!(selectedGameMode && selectedGenre) : !!selectedGameMode,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,

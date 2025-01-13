@@ -1,7 +1,7 @@
 import { Game, GameMode } from '../components/gauge/types'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
-const CORS_PROXY = 'https://corsproxy.io/?'
+const CORS_PROXY = 'https://api.allorigins.win/raw?url='
 
 interface SteamSpyGame {
   appid: number
@@ -66,39 +66,20 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
   try {
     // Build URL with parameters
     const queryParams = new URLSearchParams({ request, ...params })
-    const url = `${CORS_PROXY}${STEAMSPY_API}?${queryParams}`
+    const steamspyUrl = `${STEAMSPY_API}?${queryParams}`
+    const encodedUrl = encodeURIComponent(steamspyUrl)
+    const url = `${CORS_PROXY}${encodedUrl}`
     console.log('Fetching from URL:', url)
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      }
-    })
+    const response = await fetch(url)
     
     if (!response.ok) {
       console.error('Response not OK:', response.status, response.statusText)
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
-    let text
-    try {
-      text = await response.text()
-      console.log('Raw response text length:', text.length)
-    } catch (error) {
-      console.error('Error reading response text:', error)
-      throw error
-    }
-    
-    let data
-    try {
-      data = JSON.parse(text)
-      console.log('Successfully parsed JSON data')
-    } catch (error) {
-      console.error('Error parsing JSON:', error, 'Raw text:', text.slice(0, 200))
-      throw error
-    }
+    const data = await response.json()
+    console.log('Successfully parsed JSON data')
     
     // Convert the object of games into an array
     const gamesArray = Object.values(data) as SteamSpyGame[]
@@ -129,6 +110,35 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
   }
 }
 
+async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
+  try {
+    const response = await fetch(`/src/components/gauge/genreDB/${genre.toLowerCase()}.json`)
+    if (!response.ok) {
+      throw new Error(`Failed to load ${genre} database`)
+    }
+    
+    const data = await response.json()
+    const gamesArray = Object.values(data) as SteamSpyGame[]
+    
+    // Convert and filter valid games
+    const validGames = gamesArray
+      .map(convertSteamSpyGame)
+      .filter(game => 
+        game.steamScore > 0 && 
+        game.totalReviews && game.totalReviews > 500 && // Only include games with sufficient reviews
+        game.name && // Ensure game has a name
+        game.steamId // Ensure game has an ID
+      )
+      // Sort by review count but don't limit to 100
+      .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
+
+    return validGames
+  } catch (error) {
+    console.error(`Error loading ${genre} database:`, error)
+    throw error
+  }
+}
+
 async function getGamesByMode(mode: GameMode, genre?: string): Promise<Game[]> {
   switch (mode) {
     case 'top100in2weeks':
@@ -137,11 +147,7 @@ async function getGamesByMode(mode: GameMode, genre?: string): Promise<Game[]> {
       return getSteamSpyGames('top100forever')
     case 'genre':
       if (!genre) throw new Error('Genre is required for genre mode')
-      // Get games and limit to top 100 by review count
-      const games = await getSteamSpyGames('genre', { genre })
-      return games
-        .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
-        .slice(0, 100)
+      return getGamesFromLocalDB(genre)
     default:
       throw new Error('Invalid game mode')
   }
