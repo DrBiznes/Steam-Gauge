@@ -53,7 +53,7 @@ function ModeCard({ title, description, icon, variant, currentScore, highScore, 
       <CardContent className="card-content">
         <div className="flex flex-col h-full">
           <button 
-            className="play-button"
+            className="play-button mt-auto"
             onClick={(e) => {
               e.stopPropagation(); // Prevent card click
               onSelect();
@@ -61,7 +61,7 @@ function ModeCard({ title, description, icon, variant, currentScore, highScore, 
           >
             Play Game
           </button>
-          <div className="scores-container mt-auto">
+          <div className="scores-container mt-8">
             <div className="flex items-center gap-3 text-muted-foreground mb-2">
               <Trophy className="w-6 h-6" />
               <span>High Score: {highScore || 0}</span>
