@@ -1,18 +1,35 @@
 import { Header } from "./Header"
 import { Footer } from "./Footer"
+import { useLocation } from "react-router-dom"
 
-interface LayoutProps {
+type LayoutProps = {
   children: React.ReactNode
 }
 
 export function Layout({ children }: LayoutProps) {
+  const location = useLocation()
+  const path = location.pathname
+
+  // Define background classes based on route
+  const getBackgroundClass = () => {
+    switch (path) {
+      case '/':
+        return 'bg-home'
+      case '/steam-gauge':
+        return 'bg-gauge'
+      default:
+        return 'bg-home'
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#F74843] flex flex-col relative">
+    <div className="min-h-screen flex flex-col">
+      <div className={`bg-base ${getBackgroundClass()}`} />
       <Header />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1">
         {children}
       </main>
-      <Footer className="relative z-10" />
+      <Footer />
     </div>
   )
 }

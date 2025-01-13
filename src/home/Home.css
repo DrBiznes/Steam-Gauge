@@ -1,29 +1,10 @@
-.home-wrapper {
-  position: relative;
-  min-height: 100vh;
-  width: 100%;
-  margin-top: -64px;
-  padding-top: 64px;
-}
-
-.home-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('../assets/valvebg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.4);
-  z-index: 0;
-}
-
 .home-container {
   position: relative;
   z-index: 1;
   width: 100%;
+  min-height: 100vh;
+  margin-top: -64px;
+  padding-top: 64px;
 }
 
 .home-content {
@@ -57,7 +38,6 @@
   padding: 6rem 3rem;
   pointer-events: none;
   z-index: 1;
-  /* Add margin to create more scroll space */
   margin-bottom: 50vh;
 }
 
