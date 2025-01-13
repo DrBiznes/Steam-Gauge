@@ -5,6 +5,7 @@ import { useGaugeStore } from "./store"
 import LoadingGauge from "./LoadingGauge"
 import { GameModeSelect } from "./GameModeSelect"
 import { GameMode } from "./types"
+import { motion, AnimatePresence } from "framer-motion"
 
 const getPageTitle = (mode: GameMode | null, genre: string | null) => {
   if (!mode) return "Steam Score Gauge"
@@ -81,43 +82,94 @@ export function GaugePage() {
   return (
     <div className="min-h-screen pt-16 px-4">
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-8 py-12">
-        <div className="text-center mb-8">
+        <motion.div 
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <h1 className="text-4xl font-bold mb-4 text-white">{pageTitle}</h1>
           <div className="text-xl text-white">
             Score: {currentScore} | High Score: {highScore}
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex gap-8 items-center justify-center min-h-[400px]">
           {isLoading || !gameState ? (
             <LoadingGauge />
           ) : (
-            <>
-              <GameCard
-                game={gameState.leftGame}
-                revealed={gameState.revealed}
-                onClick={() => handleGuess('left')}
-              />
-              <div className="text-2xl font-bold text-white">VS</div>
-              <GameCard
-                game={gameState.rightGame}
-                revealed={gameState.revealed}
-                onClick={() => handleGuess('right')}
-              />
-            </>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${gameState.leftGame?.id}-${gameState.rightGame?.id}`}
+                className="flex gap-8 items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <motion.div
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -100, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                >
+                  <GameCard
+                    game={gameState.leftGame}
+                    revealed={gameState.revealed}
+                    onClick={() => handleGuess('left')}
+                  />
+                </motion.div>
+                
+                <motion.div
+                  className="text-2xl font-bold text-white"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  VS
+                </motion.div>
+                
+                <motion.div
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 100, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                >
+                  <GameCard
+                    game={gameState.rightGame}
+                    revealed={gameState.revealed}
+                    onClick={() => handleGuess('right')}
+                  />
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
 
-        <div className="text-center mt-4">
+        <motion.div 
+          className="text-center mt-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
           <p className="text-lg text-white">
             Click on the game you think has a higher Steam user review score!
           </p>
-          {gameState?.revealed && gameState.leftGame && gameState.rightGame && (
-            <p className="text-lg mt-2 text-white">
-              Steam Scores: {gameState.leftGame.name}: {gameState.leftGame.steamScore}% vs {gameState.rightGame.name}: {gameState.rightGame.steamScore}%
-            </p>
-          )}
-        </div>
+          <AnimatePresence mode="wait">
+            {gameState?.revealed && gameState.leftGame && gameState.rightGame && (
+              <motion.p 
+                className="text-lg mt-2 text-white"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+              >
+                Steam Scores: {gameState.leftGame.name}: {gameState.leftGame.steamScore}% vs {gameState.rightGame.name}: {gameState.rightGame.steamScore}%
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   )
