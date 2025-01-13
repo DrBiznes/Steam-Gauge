@@ -1,35 +1,39 @@
-.home-container {
+.home-wrapper {
   position: relative;
-  width: 100%;
   min-height: 100vh;
-  height: auto;
+  width: 100%;
   margin-top: -64px;
   padding-top: 64px;
-  overflow-x: hidden;
 }
 
-.home-container::before {
-  content: '';
+.home-background {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: url('../assets/valvebg.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
   filter: brightness(0.4);
   z-index: 0;
+}
+
+.home-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
 }
 
 .home-content {
   position: relative;
   width: 100%;
-  min-height: 150vh;
   height: auto;
   max-width: 1536px;
   margin: 0 auto;
   padding: 3rem;
-  z-index: 1;
+  padding-bottom: 6rem;
   display: flex;
 }
 
@@ -39,6 +43,7 @@
   padding: 2rem;
   color: white;
   max-width: 50%;
+  position: relative;
 }
 
 .carousel-container {
@@ -51,6 +56,9 @@
   justify-content: flex-end;
   padding: 6rem 3rem;
   pointer-events: none;
+  z-index: 1;
+  /* Add margin to create more scroll space */
+  margin-bottom: 50vh;
 }
 
 .carousel-container > * {
@@ -65,4 +73,4 @@
   .carousel-container {
     display: none;
   }
-} 
+}

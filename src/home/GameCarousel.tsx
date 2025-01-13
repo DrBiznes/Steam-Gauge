@@ -1,5 +1,5 @@
 import './GameCarousel.css'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Game {
   id: number
@@ -12,7 +12,7 @@ interface GameCarouselProps {
   speed?: number
 }
 
-const POPULAR_GAMES_1: Game[] = [
+export const POPULAR_GAMES_1: Game[] = [
   {
     id: 1,
     title: "Counter-Strike 2",
@@ -35,7 +35,7 @@ const POPULAR_GAMES_1: Game[] = [
   }
 ]
 
-const POPULAR_GAMES_2: Game[] = [
+export const POPULAR_GAMES_2: Game[] = [
   {
     id: 5,
     title: "GTA V",
@@ -58,35 +58,64 @@ const POPULAR_GAMES_2: Game[] = [
   }
 ]
 
-function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
+export function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
   const columnRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
       if (columnRef.current) {
-        const rect = columnRef.current.parentElement?.getBoundingClientRect()
-        if (!rect) return
+        const rect = columnRef.current.getBoundingClientRect()
+        const parentRect = columnRef.current.parentElement?.getBoundingClientRect()
+        
+        if (!parentRect) return
 
-        // Only apply parallax when the parent is in view
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          const parentTop = rect.top
-          const scrollProgress = -parentTop * speed
-          
-          // Limit the maximum scroll distance to prevent scrolling past the bottom
-          const maxScroll = window.innerHeight * 0.2 // Limit to 30% of viewport height
-          const limitedScroll = Math.min(scrollProgress, maxScroll)
-          
-          columnRef.current.style.transform = `translateY(${limitedScroll}px)`
+        // Calculate the scroll progress relative to viewport
+        const viewportHeight = window.innerHeight
+        const scrollPosition = window.scrollY
+        const elementTop = rect.top + scrollPosition
+        
+        // Calculate how far we've scrolled past the element
+        const relativeScroll = scrollPosition - elementTop + viewportHeight
+        
+        // Create a longer scroll range
+        const scrollRange = parentRect.height + viewportHeight
+        
+        // Calculate progress as a percentage of the scroll range
+        const progress = (relativeScroll / scrollRange) * 100
+        
+        // Limit the progress to a reasonable range
+        const limitedProgress = Math.max(0, Math.min(progress, 100))
+        
+        // Apply non-linear easing for smoother effect
+        const easedProgress = Math.pow(limitedProgress / 100, 1.5) * 100
+        
+        // Calculate the final transform value with increased range
+        const maxTransform = viewportHeight * speed * 1.5
+        const transformValue = (easedProgress / 100) * maxTransform
+
+        // Only update if the element is in or near the viewport
+        if (rect.top < viewportHeight && rect.bottom > -viewportHeight) {
+          setScrollProgress(transformValue)
         }
       }
     }
 
     window.addEventListener('scroll', handleScroll)
+    // Initial calculation
+    handleScroll()
+    
     return () => window.removeEventListener('scroll', handleScroll)
   }, [speed])
 
   return (
-    <div className="game-carousel" ref={columnRef}>
+    <div 
+      className="game-carousel" 
+      ref={columnRef}
+      style={{
+        transform: `translateY(${scrollProgress}px)`
+      }}
+    >
       {games.map((game, index) => (
         <div 
           key={`${game.id}-${index}`}
@@ -104,5 +133,3 @@ function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
     </div>
   )
 }
-
-export { GameCarousel, POPULAR_GAMES_1, POPULAR_GAMES_2 } 

@@ -7,12 +7,12 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-[#F74843] flex flex-col">
+    <div className="min-h-screen bg-[#F74843] flex flex-col relative">
       <Header />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 flex flex-col">
         {children}
       </main>
-      <Footer />
+      <Footer className="relative z-10" />
     </div>
   )
-} 
+}

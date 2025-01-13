@@ -1,9 +1,10 @@
 import { Github, Twitter, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { type HTMLAttributes } from "react"
 
-export function Footer() {
+export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
-    <footer className="border-t border-border/40 bg-[#F74843] py-6 mt-auto">
+    <footer className={cn("border-t border-border/40 bg-[#F74843] py-6 mt-auto", className)} {...props}>
       <div className="container flex flex-col items-center gap-4">
         <div className="flex gap-4">
           <a
@@ -44,4 +45,4 @@ export function Footer() {
       </div>
     </footer>
   )
-} 
+}
