@@ -36,7 +36,7 @@ export function Header() {
     if (segment === 'gauge') return 'Gauge'
     if (segment === 'top100in2weeks') return 'Recent Top 100'
     if (segment === 'top100forever') return 'All-Time Top 100'
-    if (segment === 'genre') return 'By Genre'
+    if (segment === 'genre') return 'Genre'
     return segment.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ')
@@ -77,9 +77,8 @@ export function Header() {
             </BreadcrumbItem>
 
             {pathSegments.map((segment, index) => {
-              // Skip rendering genre segment as it will be part of the dropdown
-              if (segment === 'genre') return null
-              if (currentGenre && index === pathSegments.length - 1) return null
+              // Skip the last segment if it's a genre value
+              if (pathSegments[2] === 'genre' && index === pathSegments.length - 1) return null;
 
               return (
                 <React.Fragment key={index}>
@@ -87,7 +86,28 @@ export function Header() {
                     <Slash className="h-6 w-6 text-white/80" />
                   </BreadcrumbSeparator>
                   <BreadcrumbItem>
-                    {segment === pathSegments[pathSegments.length - 1] ? (
+                    {segment === 'genre' ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className={`${getSegmentStyle('genre')} flex items-center gap-2 px-4 py-2 text-white/90`}>
+                          Genre
+                          <ChevronDown className="h-4 w-4" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="bg-[#1a1a1a] border-[#059669]">
+                          {POPULAR_GENRES.map((genre) => (
+                            <DropdownMenuItem
+                              key={genre.value}
+                              className="text-[#00ffa3] hover:bg-[#059669]/20 focus:bg-[#059669]/20"
+                              onClick={() => {
+                                setGameMode('genre', genre.value)
+                                window.location.href = `/gauge/genre/${genre.value}`
+                              }}
+                            >
+                              {genre.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : segment === pathSegments[pathSegments.length - 1] ? (
                       <BreadcrumbPage className={`${getSegmentStyle(segment)} text-white/90 px-4 py-2 leading-none`}>
                         {getDisplayName(segment)}
                       </BreadcrumbPage>
@@ -103,35 +123,19 @@ export function Header() {
                     )}
                   </BreadcrumbItem>
                 </React.Fragment>
-              )
+              );
             })}
 
-            {/* Genre Dropdown */}
-            {pathSegments[2] === 'genre' && (
+            {/* Show current genre if we're in a genre route */}
+            {pathSegments[2] === 'genre' && currentGenre && (
               <>
                 <BreadcrumbSeparator>
                   <Slash className="h-6 w-6 text-white/80" />
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className={`${getSegmentStyle('genre')} flex items-center gap-2 px-4 py-2 text-white/90`}>
-                      {currentGenre || 'Select Genre'}
-                      <ChevronDown className="h-4 w-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="bg-[#1a1a1a] border-[#059669]">
-                      {POPULAR_GENRES.map((genre) => (
-                        <DropdownMenuItem
-                          key={genre.value}
-                          className="text-[#00ffa3] hover:bg-[#059669]/20 focus:bg-[#059669]/20"
-                          onClick={() => {
-                            setGameMode('genre', genre.value)
-                          }}
-                        >
-                          {genre.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <BreadcrumbPage className={`${getSegmentStyle('genre')} text-white/90 px-4 py-2 leading-none`}>
+                    {currentGenre}
+                  </BreadcrumbPage>
                 </BreadcrumbItem>
               </>
             )}

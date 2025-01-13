@@ -200,7 +200,10 @@ export function GameModeSelect() {
             </CardHeader>
             <CardContent>
               <Select 
-                onValueChange={(genre) => handleModeSelect('genre', genre)}
+                onValueChange={(genre) => {
+                  setGameMode('genre', genre)
+                  window.location.href = `/gauge/genre/${genre}`
+                }}
               >
                 <SelectTrigger className="select-trigger">
                   <SelectValue placeholder="Select a genre" />
