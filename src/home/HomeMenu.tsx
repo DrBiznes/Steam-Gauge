@@ -6,7 +6,7 @@ const GAMES = [
   {
     id: 1,
     name: "Steam Gauge",
-    path: "/steam-gauge",
+    path: "/gauge",
     description: "Dive deep into your Steam library analytics. Track your gaming habits, discover insights about your playtime, and understand your gaming preferences through detailed statistics and visualizations."
   },
   {

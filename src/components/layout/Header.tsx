@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Slash } from "lucide-react"
+import { Slash, ChevronDown } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,17 +9,56 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useGaugeStore } from "../gauge/store"
+
+const POPULAR_GENRES = [
+  { value: "Action", label: "Action" },
+  { value: "CO-OP", label: "Co-op" },
+  { value: "Indie", label: "Indie" },
+  { value: "MMO", label: "MMO" },
+  { value: "RPG", label: "RPG" },
+  { value: "Simulation", label: "Simulation" },
+  { value: "Strategy", label: "Strategy" }
+]
 
 export function Header() {
   const location = useLocation()
+  const { setGameMode } = useGaugeStore()
   const pathSegments = location.pathname.split('/').filter(Boolean)
 
   const getDisplayName = (segment: string) => {
-    if (segment === 'steam-gauge') return 'Gauge Game'
+    if (segment === 'gauge') return 'Gauge'
+    if (segment === 'top100in2weeks') return 'Recent Top 100'
+    if (segment === 'top100forever') return 'All-Time Top 100'
+    if (segment === 'genre') return 'By Genre'
     return segment.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ')
   }
+
+  const getSegmentStyle = (segment: string) => {
+    if (segment === 'top100in2weeks') {
+      return 'bg-[#2563eb] hover:bg-[#1d4ed8]'
+    }
+    if (segment === 'top100forever') {
+      return 'bg-[#dc2626] hover:bg-[#b91c1c]'
+    }
+    if (segment === 'genre') {
+      return 'bg-[#059669] hover:bg-[#047857]'
+    }
+    if (segment === 'gauge') {
+      return 'bg-[#F74843] hover:bg-[#ff5a55]'
+    }
+    return 'bg-[#2F2F2F] hover:bg-[#404040]'
+  }
+
+  const currentGenre = pathSegments[2] === 'genre' ? pathSegments[3] : null
 
   return (
     <header className="absolute top-0 left-0 right-0 z-50 border-transparent">
@@ -30,35 +69,72 @@ export function Header() {
               <BreadcrumbLink asChild>
                 <Link 
                   to="/"
-                  className="bg-[#F74843] text-white transition-colors hover:bg-[#ff5a55] px-4 py-2 leading-none"
+                  className={`${getSegmentStyle('gauge')} text-white transition-colors px-4 py-2 leading-none`}
                 >
                   Steam-Gauge
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            {pathSegments.map((segment, index) => (
-              <React.Fragment key={index}>
+
+            {pathSegments.map((segment, index) => {
+              // Skip rendering genre segment as it will be part of the dropdown
+              if (segment === 'genre') return null
+              if (currentGenre && index === pathSegments.length - 1) return null
+
+              return (
+                <React.Fragment key={index}>
+                  <BreadcrumbSeparator>
+                    <Slash className="h-6 w-6 text-white/80" />
+                  </BreadcrumbSeparator>
+                  <BreadcrumbItem>
+                    {segment === pathSegments[pathSegments.length - 1] ? (
+                      <BreadcrumbPage className={`${getSegmentStyle(segment)} text-white/90 px-4 py-2 leading-none`}>
+                        {getDisplayName(segment)}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link 
+                          to={`/${pathSegments.slice(0, index + 1).join('/')}`}
+                          className={`${getSegmentStyle(segment)} text-white/90 transition-colors px-4 py-2 leading-none`}
+                        >
+                          {getDisplayName(segment)}
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              )
+            })}
+
+            {/* Genre Dropdown */}
+            {pathSegments[2] === 'genre' && (
+              <>
                 <BreadcrumbSeparator>
                   <Slash className="h-6 w-6 text-white/80" />
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                  {index === pathSegments.length - 1 ? (
-                    <BreadcrumbPage className="bg-[#2F2F2F] text-white/90 px-4 py-2 leading-none">
-                      {getDisplayName(segment)}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link 
-                        to={`/${pathSegments.slice(0, index + 1).join('/')}`}
-                        className="bg-[#1B2838] text-white/90 transition-colors hover:bg-[#2a3f5a] hover:text-white px-4 py-2 leading-none"
-                      >
-                        {getDisplayName(segment)}
-                      </Link>
-                    </BreadcrumbLink>
-                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className={`${getSegmentStyle('genre')} flex items-center gap-2 px-4 py-2 text-white/90`}>
+                      {currentGenre || 'Select Genre'}
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="bg-[#1a1a1a] border-[#059669]">
+                      {POPULAR_GENRES.map((genre) => (
+                        <DropdownMenuItem
+                          key={genre.value}
+                          className="text-[#00ffa3] hover:bg-[#059669]/20 focus:bg-[#059669]/20"
+                          onClick={() => {
+                            setGameMode('genre', genre.value)
+                          }}
+                        >
+                          {genre.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </BreadcrumbItem>
-              </React.Fragment>
-            ))}
+              </>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
