@@ -111,7 +111,7 @@ export function GameModeSelect() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ModeCard
           title="Top 100 Recent"
-          description="Compare the most played games from the last two weeks"
+          description="The most played games from the last two weeks"
           icon={<Clock className="w-6 h-6" />}
           mode="top100in2weeks"
           variant="recent"
@@ -121,7 +121,7 @@ export function GameModeSelect() {
         
         <ModeCard
           title="All-Time Top 100"
-          description="Compare the most played games since 2009"
+          description="The most played games since 2009"
           icon={<Trophy className="w-6 h-6" />}
           mode="top100forever"
           variant="alltime"
@@ -149,7 +149,7 @@ export function GameModeSelect() {
                 <Gamepad2 className="w-6 h-6" />
               </div>
             </div>
-            <CardDescription className="card-description">Compare games from your favorite genre</CardDescription>
+            <CardDescription className="card-description">Games from your favorite genre</CardDescription>
           </CardHeader>
           <CardContent>
             <Select 
