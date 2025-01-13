@@ -8,7 +8,8 @@ export function useGaugeQueries() {
   const { 
     setGames, 
     setLoading, 
-    selectedYear,
+    selectedGameMode,
+    selectedGenre,
     shownGameIds,
     addShownGames,
     resetShownGames
@@ -43,10 +44,15 @@ export function useGaugeQueries() {
   }, [setGames, shownGameIds, addShownGames, resetShownGames])
 
   const gamesQuery = useQuery({
-    queryKey: ["gauge", "games", { year: selectedYear }],
+    queryKey: ["gauge", "games", { mode: selectedGameMode, genre: selectedGenre }],
     queryFn: async () => {
+      if (!selectedGameMode) return []
+      
       try {
-        const games = await gaugeApi.getRandomGames()
+        const games = await gaugeApi.getGamesByMode(
+          selectedGameMode, 
+          selectedGenre || undefined
+        )
         console.log('Fetched total games:', games.length)
         return games
       } catch (error) {
@@ -56,6 +62,7 @@ export function useGaugeQueries() {
         setLoading(false)
       }
     },
+    enabled: !!selectedGameMode,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,

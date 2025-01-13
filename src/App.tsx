@@ -8,7 +8,11 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/steam-gauge" element={<GaugePage />} />
+        <Route path="/gauge" element={<GaugePage />}>
+          <Route path="top100in2weeks" element={<GaugePage />} />
+          <Route path="top100forever" element={<GaugePage />} />
+          <Route path="genre/:genre" element={<GaugePage />} />
+        </Route>
         <Route path="/steam-guess" element={<div>Coming Soon</div>} />
         <Route path="/about" element={<div>About Page</div>} />
       </Routes>

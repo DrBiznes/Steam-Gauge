@@ -1,80 +1,119 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Game } from './types'
+import { Game, GameMode } from './types'
+
+interface ScoreData {
+  currentScore: number
+  highScore: number
+}
 
 interface GaugeGameStore {
   games: [Game | null, Game | null]
   loading: boolean
   selectedGenre: string | null
-  selectedYear: number | null
+  selectedGameMode: GameMode | null
   shownGameIds: Set<number>
-  score: number
-  highScore: number
+  scores: Record<string, ScoreData>  // Key is either gameMode or gameMode-genre
   setGames: (games: [Game | null, Game | null]) => void
   setLoading: (loading: boolean) => void
   setSelectedGenre: (genre: string | null) => void
-  setSelectedYear: (year: number | null) => void
+  setSelectedGameMode: (mode: GameMode | null) => void
   addShownGames: (games: Game[]) => void
   resetShownGames: () => void
   incrementScore: () => void
   resetScore: () => void
   resetGame: () => void
   resetCurrentGames: () => void
+  getCurrentScore: () => number
+  getHighScore: () => number
+}
+
+const getScoreKey = (state: GaugeGameStore) => {
+  if (state.selectedGameMode === 'genre' && state.selectedGenre) {
+    return `genre-${state.selectedGenre}`
+  }
+  return state.selectedGameMode || ''
 }
 
 export const useGaugeGameStore = create<GaugeGameStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       games: [null, null],
       loading: false,
       selectedGenre: null,
-      selectedYear: null,
+      selectedGameMode: null,
       shownGameIds: new Set<number>(),
-      score: 0,
-      highScore: 0,
+      scores: {},
       setGames: (games) => set({ games }),
       setLoading: (loading) => set({ loading }),
       setSelectedGenre: (genre) => set({ 
-        selectedGenre: genre, 
-        selectedYear: null,
-        shownGameIds: new Set(), // Reset shown games when changing genre
-        score: 0 // Reset score when changing filters
+        selectedGenre: genre,
+        shownGameIds: new Set()
       }),
-      setSelectedYear: (year) => set({ 
-        selectedYear: year, 
+      setSelectedGameMode: (mode) => set({ 
+        selectedGameMode: mode,
         selectedGenre: null,
-        shownGameIds: new Set(), // Reset shown games when changing year
-        score: 0 // Reset score when changing filters
+        shownGameIds: new Set()
       }),
       addShownGames: (games) => set((state) => ({
         shownGameIds: new Set([...Array.from(state.shownGameIds), ...games.map(g => g.id)])
       })),
       resetShownGames: () => set({ shownGameIds: new Set() }),
-      incrementScore: () => set((state) => ({ 
-        score: state.score + 1,
-        highScore: Math.max(state.score + 1, state.highScore)
-      })),
-      resetScore: () => set(() => ({ 
-        score: 0,
-        // Don't reset highScore here as we want to keep it
-      })),
-      resetGame: () => set(() => ({ 
-        score: 0, 
+      incrementScore: () => set((state) => {
+        const scoreKey = getScoreKey(state)
+        const currentScore = (state.scores[scoreKey]?.currentScore || 0) + 1
+        const highScore = Math.max(currentScore, state.scores[scoreKey]?.highScore || 0)
+        
+        return {
+          scores: {
+            ...state.scores,
+            [scoreKey]: { currentScore, highScore }
+          }
+        }
+      }),
+      resetScore: () => set((state) => {
+        const scoreKey = getScoreKey(state)
+        return {
+          scores: {
+            ...state.scores,
+            [scoreKey]: { 
+              currentScore: 0,
+              highScore: state.scores[scoreKey]?.highScore || 0
+            }
+          }
+        }
+      }),
+      resetGame: () => set((state) => ({ 
         games: [null, null],
         selectedGenre: null,
-        selectedYear: null,
+        selectedGameMode: null,
         shownGameIds: new Set(),
-        // Keep the highScore
+        scores: {
+          ...state.scores,
+          [getScoreKey(state)]: {
+            currentScore: 0,
+            highScore: state.scores[getScoreKey(state)]?.highScore || 0
+          }
+        }
       })),
-      resetCurrentGames: () => set({ games: [null, null] })
+      resetCurrentGames: () => set({ games: [null, null] }),
+      getCurrentScore: () => {
+        const state = get()
+        const scoreKey = getScoreKey(state)
+        return state.scores[scoreKey]?.currentScore || 0
+      },
+      getHighScore: () => {
+        const state = get()
+        const scoreKey = getScoreKey(state)
+        return state.scores[scoreKey]?.highScore || 0
+      }
     }),
     {
       name: 'gauge-game-storage',
-      // Only persist these specific fields
       partialize: (state) => ({ 
-        highScore: state.highScore,
-        selectedGenre: state.selectedGenre,
-        selectedYear: state.selectedYear
+        scores: state.scores,
+        selectedGameMode: state.selectedGameMode,
+        selectedGenre: state.selectedGenre
       })
     }
   )

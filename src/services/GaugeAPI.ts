@@ -1,4 +1,4 @@
-import { Game } from '../components/gauge/types'
+import { Game, GameMode } from '../components/gauge/types'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
@@ -21,7 +21,17 @@ interface SteamSpyGame {
   initialprice: string
   discount: string
   ccu: number
+  genre?: string[]
 }
+
+// Cache structure to store game data for 24 hours
+interface CacheEntry {
+  data: Game[]
+  timestamp: number
+}
+
+const cache: Record<string, CacheEntry> = {}
+const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 
 function convertSteamSpyGame(game: SteamSpyGame): Game {
   const totalReviews = game.positive + game.negative
@@ -37,13 +47,26 @@ function convertSteamSpyGame(game: SteamSpyGame): Game {
     steamScore,
     owners: game.owners,
     averagePlayers2Weeks: game.average_2weeks,
-    totalReviews
+    totalReviews,
+    genre: game.genre
   }
 }
 
-async function getSteamSpyGames(request: string): Promise<Game[]> {
+async function getSteamSpyGames(request: string, params: Record<string, string> = {}): Promise<Game[]> {
+  // Create cache key based on request and params
+  const cacheKey = JSON.stringify({ request, params })
+  
+  // Check cache first
+  const cached = cache[cacheKey]
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log('Returning cached data for:', request)
+    return cached.data
+  }
+
   try {
-    const encodedUrl = encodeURIComponent(`${STEAMSPY_API}?request=${request}`)
+    // Build URL with parameters
+    const queryParams = new URLSearchParams({ request, ...params })
+    const encodedUrl = encodeURIComponent(`${STEAMSPY_API}?${queryParams}`)
     const response = await fetch(`${CORS_PROXY}${encodedUrl}`)
     
     if (!response.ok) {
@@ -70,6 +93,13 @@ async function getSteamSpyGames(request: string): Promise<Game[]> {
       )
     
     console.log('Number of valid games after filtering:', validGames.length)
+
+    // Cache the results
+    cache[cacheKey] = {
+      data: validGames,
+      timestamp: Date.now()
+    }
+
     return validGames
   } catch (error) {
     console.error('Error fetching from SteamSpy:', error)
@@ -77,16 +107,20 @@ async function getSteamSpyGames(request: string): Promise<Game[]> {
   }
 }
 
-async function getRandomGames(): Promise<Game[]> {
-  try {
-    // Get all top games and return the full list
-    return await getSteamSpyGames('top100in2weeks')
-  } catch (error) {
-    console.error('Error getting random games:', error)
-    throw error
+async function getGamesByMode(mode: GameMode, genre?: string): Promise<Game[]> {
+  switch (mode) {
+    case 'top100in2weeks':
+      return getSteamSpyGames('top100in2weeks')
+    case 'top100forever':
+      return getSteamSpyGames('top100forever')
+    case 'genre':
+      if (!genre) throw new Error('Genre is required for genre mode')
+      return getSteamSpyGames('genre', { genre })
+    default:
+      throw new Error('Invalid game mode')
   }
 }
 
 export const gaugeApi = {
-  getRandomGames
+  getGamesByMode
 }
