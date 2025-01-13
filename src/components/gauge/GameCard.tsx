@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { Game } from "./types"
+import { motion } from "framer-motion"
 import "./gauge.css"
 
 interface GameCardProps {
@@ -35,14 +36,31 @@ export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
   const GameInfo = () => (
     <>
       {game.steamScore !== undefined && (
-        <div className={`review-score ${reviewStatus}`}>
+        <motion.div 
+          className={`review-score ${reviewStatus}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
           <span>{game.steamScore}%</span>
           <span>•</span>
           <span>{reviewStatus} reviews</span>
-        </div>
+        </motion.div>
       )}
-      <h3 className="game-card-title">{game.name}</h3>
-      <div className="game-metadata">
+      <motion.h3 
+        className="game-card-title"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+      >
+        {game.name}
+      </motion.h3>
+      <motion.div 
+        className="game-metadata"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+      >
         {game.totalReviews && (
           <div>Total Reviews: {game.totalReviews.toLocaleString()}</div>
         )}
@@ -52,36 +70,59 @@ export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
         <div className="opacity-75">
           Average Players (2 weeks): {game.averagePlayers2Weeks.toLocaleString()}
         </div>
-      </div>
+      </motion.div>
     </>
   )
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.3 }}
+    >
       <Card 
         className="game-card" 
         onClick={onClick}
         data-revealed={revealed}
       >
-        <img
+        <motion.img
           src={game.coverUrl}
           alt={game.name}
           className="game-card-image"
           onError={(e) => {
             e.currentTarget.src = getPlaceholderImage()
           }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         />
-        <div className="game-card-overlay" />
+        <motion.div 
+          className="game-card-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: revealed ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+        />
         
-        <div className="game-card-content">
+        <motion.div 
+          className="game-card-content"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: revealed ? 1 : 0, y: revealed ? 0 : 20 }}
+          transition={{ duration: 0.3 }}
+        >
           <GameInfo />
-        </div>
+        </motion.div>
       </Card>
       {revealed && (
-        <div className="mobile-game-info">
+        <motion.div 
+          className="mobile-game-info"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <GameInfo />
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   )
 } 

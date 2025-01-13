@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useParams, useLocation } from "react-router-dom"
 import { GameCard } from "./GameCard"
-import { useGaugeGameStore } from "./store"
-import { useGaugeQueries } from "./hooks/useGaugeQueries"
+import { useGaugeStore } from "./store"
 import LoadingGauge from "./LoadingGauge"
 import { GameModeSelect } from "./GameModeSelect"
+import { GameMode } from "./types"
 
-const getPageTitle = (mode: string | null, genre: string | null) => {
+const getPageTitle = (mode: GameMode | null, genre: string | null) => {
   if (!mode) return "Steam Score Gauge"
   
   switch (mode) {
@@ -25,63 +25,54 @@ export function GaugePage() {
   const { genre } = useParams()
   const location = useLocation()
   const { 
-    games, 
-    getCurrentScore,
-    getHighScore,
-    incrementScore,
-    resetScore, 
-    loading, 
-    setLoading,
-    resetCurrentGames,
-    selectedGameMode
-  } = useGaugeGameStore()
-  
-  const [revealed, setRevealed] = useState(false)
-  const { gamesQuery, getNewGames } = useGaugeQueries()
+    currentMode,
+    currentGenre,
+    isLoading,
+    gameModeStates,
+    setGameMode,
+    makeGuess,
+    loadInitialGames
+  } = useGaugeStore()
 
   // Determine if we're on the mode selection screen
   const isSelectingMode = location.pathname === '/gauge'
 
+  // Get current game mode state
+  const modeKey = currentMode === 'genre' ? `genre-${currentGenre}` : currentMode || ''
+  const currentModeState = gameModeStates[modeKey]
+  
+  // Get current game state
+  const gameState = currentModeState?.currentState
+  const currentScore = currentModeState?.currentScore || 0
+  const highScore = currentModeState?.highScore || 0
+
   // Get dynamic page title
-  const pageTitle = getPageTitle(selectedGameMode, genre || null)
+  const pageTitle = getPageTitle(currentMode, genre || null)
 
   // Initial load
   useEffect(() => {
-    if (selectedGameMode && gamesQuery.data && (!games[0] || !games[1])) {
-      console.log('Loading initial games')
-      getNewGames()
-    } else if (selectedGameMode && !gamesQuery.data) {
-      console.log('Fetching initial data')
-      setLoading(true)
-      gamesQuery.refetch()
-    }
-  }, [gamesQuery.data, selectedGameMode])
-
-  const handleGuess = (index: number) => {
-    if (revealed || !games[0] || !games[1]) return
-
-    setRevealed(true)
-    const game1Score = games[0].steamScore || 0
-    const game2Score = games[1].steamScore || 0
+    if (isSelectingMode) return
     
-    const isCorrect = (index === 0 && game1Score > game2Score) || 
-                     (index === 1 && game2Score > game1Score)
+    // Extract mode from URL
+    const urlParts = location.pathname.split('/')
+    const mode = urlParts[2] as GameMode
+    const urlGenre = urlParts[3]
 
-    if (isCorrect) {
-      incrementScore()
-    } else {
-      resetScore()
+    // Set mode if different
+    if (mode !== currentMode || urlGenre !== currentGenre) {
+      setGameMode(mode, urlGenre)
     }
 
-    setTimeout(() => {
-      console.log('Time to show new games')
-      setRevealed(false)
-      resetCurrentGames()
-      getNewGames()
-    }, 2000)
-  }
+    // Load initial games if needed
+    if (currentMode && (!gameState?.leftGame || !gameState?.rightGame)) {
+      loadInitialGames()
+    }
+  }, [location.pathname, currentMode, currentGenre, gameState])
 
-  const isLoading = loading || gamesQuery.isLoading || !games[0] || !games[1]
+  const handleGuess = async (position: 'left' | 'right') => {
+    if (!gameState || gameState.revealed || gameState.isTransitioning) return
+    await makeGuess(position)
+  }
 
   if (isSelectingMode) {
     return <GameModeSelect />
@@ -93,25 +84,25 @@ export function GaugePage() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-white">{pageTitle}</h1>
           <div className="text-xl text-white">
-            Score: {getCurrentScore()} | High Score: {getHighScore()}
+            Score: {currentScore} | High Score: {highScore}
           </div>
         </div>
 
         <div className="flex gap-8 items-center justify-center min-h-[400px]">
-          {isLoading ? (
+          {isLoading || !gameState ? (
             <LoadingGauge />
           ) : (
             <>
               <GameCard
-                game={games[0]}
-                revealed={revealed}
-                onClick={() => handleGuess(0)}
+                game={gameState.leftGame}
+                revealed={gameState.revealed}
+                onClick={() => handleGuess('left')}
               />
               <div className="text-2xl font-bold text-white">VS</div>
               <GameCard
-                game={games[1]}
-                revealed={revealed}
-                onClick={() => handleGuess(1)}
+                game={gameState.rightGame}
+                revealed={gameState.revealed}
+                onClick={() => handleGuess('right')}
               />
             </>
           )}
@@ -121,9 +112,9 @@ export function GaugePage() {
           <p className="text-lg text-white">
             Click on the game you think has a higher Steam user review score!
           </p>
-          {revealed && (
+          {gameState?.revealed && gameState.leftGame && gameState.rightGame && (
             <p className="text-lg mt-2 text-white">
-              Steam Scores: {games[0]?.name}: {games[0]?.steamScore}% vs {games[1]?.name}: {games[1]?.steamScore}%
+              Steam Scores: {gameState.leftGame.name}: {gameState.leftGame.steamScore}% vs {gameState.rightGame.name}: {gameState.rightGame.steamScore}%
             </p>
           )}
         </div>
