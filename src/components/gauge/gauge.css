@@ -156,4 +156,88 @@
   font-size: 1.25rem;
   opacity: 0.9;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.loading-gauge-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.loading-gauge {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gauge-dial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+.gauge-needle {
+  position: absolute;
+  width: 2px;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+  border-radius: 1px;
+  animation: gaugeLoading 2s ease-in-out infinite;
+}
+
+.gauge-center {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  font-weight: 300;
+}
+
+/* Add tick marks for more detail */
+.gauge-dial::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    repeating-conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 29deg,
+      rgba(255, 255, 255, 0.3) 29deg,
+      rgba(255, 255, 255, 0.3) 30deg
+    );
+}
+
+@keyframes gaugeLoading {
+  0% {
+    transform: rotate(-45deg);
+  }
+  50% {
+    transform: rotate(135deg);
+  }
+  100% {
+    transform: rotate(-45deg);
+  }
 } 

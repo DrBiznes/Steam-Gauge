@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { GameCard } from "./GameCard"
 import { useGaugeGameStore } from "./store"
-import { Loader2 } from "lucide-react"
 import { useGaugeQueries } from "./hooks/useGaugeQueries"
+import LoadingGauge from "./LoadingGauge"
 
 export function GaugePage() {
   const { 
@@ -69,10 +69,7 @@ export function GaugePage() {
 
         <div className="flex gap-8 items-center justify-center min-h-[400px]">
           {isLoading ? (
-            <div className="flex items-center gap-2 text-white">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span>Loading games...</span>
-            </div>
+            <LoadingGauge />
           ) : (
             <>
               <GameCard
