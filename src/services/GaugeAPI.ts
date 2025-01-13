@@ -29,24 +29,15 @@ function convertSteamSpyGame(game: SteamSpyGame): Game {
     ? Math.round((game.positive / totalReviews) * 100)
     : 0
 
-  // Infer rough genre based on tags or developer/publisher
-  // This could be expanded with better genre inference
-  const inferredGenres = ["Action"] // Default genre
-
   return {
     id: game.appid,
     steamId: game.appid,
     name: game.name,
     coverUrl: `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`,
     steamScore,
-    genres: inferredGenres,
-    totalReviews,
-    price: {
-      currency: 'USD',
-      initial: parseInt(game.initialprice) / 100,
-      final: parseInt(game.price) / 100,
-      discount_percent: parseInt(game.discount)
-    }
+    owners: game.owners,
+    averagePlayers2Weeks: game.average_2weeks,
+    totalReviews
   }
 }
 
@@ -96,41 +87,6 @@ async function getRandomGames(): Promise<Game[]> {
   }
 }
 
-async function getGamesByGenre(genre: string): Promise<Game[]> {
-  try {
-    const games = await getSteamSpyGames('top100in2weeks')
-    return games.filter(game => 
-      game.genres.some(g => g.toLowerCase() === genre.toLowerCase())
-    )
-  } catch (error) {
-    console.error('Error getting games by genre:', error)
-    return getRandomGames()
-  }
-}
-
-async function getGamesByYear(): Promise<Game[]> {
-  // For now, return all games since we don't have release dates
-  return getRandomGames()
-}
-
-async function getAvailableGenres(): Promise<string[]> {
-  return [
-    "Action",
-    "Adventure",
-    "RPG",
-    "Strategy",
-    "FPS",
-    "Multiplayer",
-    "Indie",
-    "Sports",
-    "Racing",
-    "Simulation"
-  ]
-}
-
 export const gaugeApi = {
-  getRandomGames,
-  getGamesByGenre,
-  getGamesByYear,
-  getAvailableGenres
+  getRandomGames
 }

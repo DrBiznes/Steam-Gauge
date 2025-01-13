@@ -46,28 +46,12 @@ export function GameCard({ game, revealed = false, onClick }: GameCardProps) {
         {game.totalReviews && (
           <div>Total Reviews: {game.totalReviews.toLocaleString()}</div>
         )}
-        {game.genres && (
-          <div className="opacity-75">
-            {game.genres.join(' • ')}
-          </div>
-        )}
-        {game.price && (
-          <div className="flex items-center gap-2">
-            {game.price.discount_percent > 0 && (
-              <span className="line-through opacity-75">
-                ${(game.price.initial / 100).toFixed(2)}
-              </span>
-            )}
-            <span className="font-semibold">
-              ${(game.price.final / 100).toFixed(2)}
-            </span>
-            {game.price.discount_percent > 0 && (
-              <span className="text-green-500">
-                -{game.price.discount_percent}%
-              </span>
-            )}
-          </div>
-        )}
+        <div className="opacity-75">
+          Owners: {game.owners}
+        </div>
+        <div className="opacity-75">
+          Average Players (2 weeks): {game.averagePlayers2Weeks.toLocaleString()}
+        </div>
       </div>
     </>
   )

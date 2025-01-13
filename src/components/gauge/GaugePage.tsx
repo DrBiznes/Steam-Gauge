@@ -3,7 +3,6 @@ import { GameCard } from "./GameCard"
 import { useGaugeGameStore } from "./store"
 import { Loader2 } from "lucide-react"
 import { useGaugeQueries } from "./hooks/useGaugeQueries"
-import { GameFilters } from "./GameFilters"
 
 export function GaugePage() {
   const { 
@@ -69,8 +68,6 @@ export function GaugePage() {
           Score: {score} | High Score: {highScore}
         </div>
       </div>
-
-      <GameFilters />
 
       <div className="flex gap-8 items-center justify-center min-h-[400px]">
         {isLoading ? (

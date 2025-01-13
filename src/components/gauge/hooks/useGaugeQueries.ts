@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { gaugeApi } from "../../../services/api"
+import { gaugeApi } from "../../../services/GaugeAPI"
 import { useGaugeGameStore } from "../store"
 import { useCallback } from "react"
 import { Game } from "../types"
@@ -8,18 +8,11 @@ export function useGaugeQueries() {
   const { 
     setGames, 
     setLoading, 
-    selectedGenre, 
     selectedYear,
     shownGameIds,
     addShownGames,
     resetShownGames
   } = useGaugeGameStore()
-
-  const genresQuery = useQuery({
-    queryKey: ["gauge", "genres"],
-    queryFn: gaugeApi.getAvailableGenres,
-    staleTime: Infinity,
-  })
 
   const selectRandomGames = useCallback((allGames: Game[]) => {
     console.log('Full game pool size:', allGames.length)
@@ -50,18 +43,10 @@ export function useGaugeQueries() {
   }, [setGames, shownGameIds, addShownGames, resetShownGames])
 
   const gamesQuery = useQuery({
-    queryKey: ["gauge", "games", { genre: selectedGenre, year: selectedYear }],
+    queryKey: ["gauge", "games", { year: selectedYear }],
     queryFn: async () => {
       try {
-        let games;
-        if (selectedGenre) {
-          games = await gaugeApi.getGamesByGenre(selectedGenre)
-        } else if (selectedYear) {
-          games = await gaugeApi.getGamesByYear()
-        } else {
-          games = await gaugeApi.getRandomGames()
-        }
-        
+        const games = await gaugeApi.getRandomGames()
         console.log('Fetched total games:', games.length)
         return games
       } catch (error) {
@@ -71,14 +56,13 @@ export function useGaugeQueries() {
         setLoading(false)
       }
     },
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false
   })
 
   return {
-    genresQuery,
     gamesQuery,
     getNewGames: useCallback(() => {
       if (gamesQuery.data) {
