@@ -1,5 +1,5 @@
 import './GameCarousel.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface Game {
   id: number
@@ -20,102 +20,75 @@ export const POPULAR_GAMES_1: Game[] = [
   },
   {
     id: 2,
-    title: "Dota 2",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/570/library_600x900.jpg"
+    title: "Half-Life 2",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/220/library_600x900.jpg"
   },
   {
     id: 3,
-    title: "PUBG",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/library_600x900.jpg"
+    title: "Portal 2",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/620/library_600x900.jpg"
   },
   {
-    id: 9,
-    title: "Baldur's Gate 3",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+    id: 4,
+    title: "Team Fortress 2",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/440/library_600x900.jpg"
+  },
+  {
+    id: 5,
+    title: "Civilization V",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/8930/library_600x900.jpg"
   }
 ]
 
 export const POPULAR_GAMES_2: Game[] = [
   {
-    id: 5,
-    title: "GTA V",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/library_600x900.jpg"
-  },
-  {
     id: 6,
-    title: "Elden Ring",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg"
+    title: "Garry's Mod",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/4000/library_600x900.jpg"
   },
   {
     id: 7,
-    title: "Red Dead Redemption 2",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
+    title: "PAYDAY: The Heist",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/24240/library_600x900.jpg"
   },
   {
-    id: 12,
-    title: "Starfield",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900.jpg"
+    id: 8,
+    title: "Terraria",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/105600/library_600x900.jpg"
+  },
+  {
+    id: 9,
+    title: "Super Meat Boy",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/40800/library_600x900.jpg"
+  },
+  {
+    id: 10,
+    title: "Grand Theft Auto V",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/library_600x900.jpg"
   }
 ]
 
 export function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
   const columnRef = useRef<HTMLDivElement>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
+    const element = columnRef.current
+    if (!element) return
+
     const handleScroll = () => {
-      if (columnRef.current) {
-        const rect = columnRef.current.getBoundingClientRect()
-        const parentRect = columnRef.current.parentElement?.getBoundingClientRect()
-        
-        if (!parentRect) return
-
-        // Calculate the scroll progress relative to viewport
-        const viewportHeight = window.innerHeight
-        const scrollPosition = window.scrollY
-        const elementTop = rect.top + scrollPosition
-        
-        // Calculate how far we've scrolled past the element
-        const relativeScroll = scrollPosition - elementTop + viewportHeight
-        
-        // Create a longer scroll range
-        const scrollRange = parentRect.height + viewportHeight
-        
-        // Calculate progress as a percentage of the scroll range
-        const progress = (relativeScroll / scrollRange) * 100
-        
-        // Limit the progress to a reasonable range
-        const limitedProgress = Math.max(0, Math.min(progress, 100))
-        
-        // Apply non-linear easing for smoother effect
-        const easedProgress = Math.pow(limitedProgress / 100, 1.5) * 100
-        
-        // Calculate the final transform value with increased range
-        const maxTransform = viewportHeight * speed * 1.5
-        const transformValue = (easedProgress / 100) * maxTransform
-
-        // Only update if the element is in or near the viewport
-        if (rect.top < viewportHeight && rect.bottom > -viewportHeight) {
-          setScrollProgress(transformValue)
-        }
-      }
+      const scrolled = window.scrollY
+      const yPos = -(scrolled * speed)
+      element.style.transform = `translate3d(0, ${yPos}px, 0)`
     }
 
-    window.addEventListener('scroll', handleScroll)
-    // Initial calculation
-    handleScroll()
-    
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll() // Initial position
+
     return () => window.removeEventListener('scroll', handleScroll)
   }, [speed])
 
   return (
-    <div 
-      className="game-carousel" 
-      ref={columnRef}
-      style={{
-        transform: `translateY(${scrollProgress}px)`
-      }}
-    >
+    <div className="game-carousel" ref={columnRef}>
       {games.map((game, index) => (
         <div 
           key={`${game.id}-${index}`}

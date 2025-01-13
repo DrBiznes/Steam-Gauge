@@ -6,6 +6,10 @@
   gap: 1rem;
   will-change: transform;
   padding: 0.75rem 0;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transition: transform 0.01s linear;
 }
 
 .game-item {
