@@ -1,7 +1,10 @@
 import { Game, GameMode } from '../gauge/types'
+import { toast } from '../components/ui/use-toast'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000 // 1 second
 
 interface SteamSpyGame {
   appid: number
@@ -52,6 +55,26 @@ function convertSteamSpyGame(game: SteamSpyGame): Game {
   }
 }
 
+async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Response> {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    return response
+  } catch (error) {
+    if (retries > 0) {
+      await delay(RETRY_DELAY)
+      return fetchWithRetry(url, retries - 1)
+    }
+    throw error
+  }
+}
+
 async function getSteamSpyGames(request: string, params: Record<string, string> = {}): Promise<Game[]> {
   // Create cache key based on request and params
   const cacheKey = JSON.stringify({ request, params })
@@ -69,21 +92,12 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
     const steamspyUrl = `${STEAMSPY_API}?${queryParams}`
     const encodedUrl = encodeURIComponent(steamspyUrl)
     const url = `${CORS_PROXY}${encodedUrl}`
-    console.log('Fetching from URL:', url)
     
-    const response = await fetch(url)
-    
-    if (!response.ok) {
-      console.error('Response not OK:', response.status, response.statusText)
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
+    const response = await fetchWithRetry(url)
     const data = await response.json()
-    console.log('Successfully parsed JSON data')
     
     // Convert the object of games into an array
     const gamesArray = Object.values(data) as SteamSpyGame[]
-    console.log('Number of games in response:', gamesArray.length)
     
     // Convert and filter valid games
     const validGames = gamesArray
@@ -94,9 +108,11 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
         game.name && // Ensure game has a name
         game.steamId // Ensure game has an ID
       )
-    
-    console.log('Number of valid games after filtering:', validGames.length)
 
+    if (validGames.length === 0) {
+      throw new Error('No valid games found in the response')
+    }
+    
     // Cache the results
     cache[cacheKey] = {
       data: validGames,
@@ -105,51 +121,75 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
 
     return validGames
   } catch (error) {
-    console.error('Error fetching from SteamSpy:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    toast({
+      title: 'Error fetching games',
+      description: errorMessage,
+      className: 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+    })
     throw error
   }
 }
 
 async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
   try {
-    const response = await fetch(`/src/genreDB/${genre.toLowerCase()}.json`)
-    if (!response.ok) {
-      throw new Error(`Failed to load ${genre} database`)
-    }
-    
+    const response = await fetchWithRetry(`/src/genreDB/${genre.toLowerCase()}.json`)
     const data = await response.json()
     const gamesArray = Object.values(data) as SteamSpyGame[]
     
-    // Convert and filter valid games
     const validGames = gamesArray
       .map(convertSteamSpyGame)
       .filter(game => 
         game.steamScore > 0 && 
-        game.totalReviews && game.totalReviews > 500 && // Only include games with sufficient reviews
-        game.name && // Ensure game has a name
-        game.steamId // Ensure game has an ID
+        game.totalReviews && game.totalReviews > 500 &&
+        game.name &&
+        game.steamId
       )
-      // Sort by review count but don't limit to 100
       .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
+
+    if (validGames.length === 0) {
+      throw new Error(`No valid games found for genre: ${genre}`)
+    }
 
     return validGames
   } catch (error) {
-    console.error(`Error loading ${genre} database:`, error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    toast({
+      title: `Error loading ${genre} games`,
+      description: errorMessage,
+      className: 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+    })
     throw error
   }
 }
 
 async function getGamesByMode(mode: GameMode, genre?: string): Promise<Game[]> {
-  switch (mode) {
-    case 'top100in2weeks':
-      return getSteamSpyGames('top100in2weeks')
-    case 'top100forever':
-      return getSteamSpyGames('top100forever')
-    case 'genre':
-      if (!genre) throw new Error('Genre is required for genre mode')
-      return getGamesFromLocalDB(genre)
-    default:
-      throw new Error('Invalid game mode')
+  try {
+    switch (mode) {
+      case 'top100in2weeks':
+        return getSteamSpyGames('top100in2weeks')
+      case 'top100forever':
+        return getSteamSpyGames('top100forever')
+      case 'genre':
+        if (!genre) throw new Error('Genre is required for genre mode')
+        return getGamesFromLocalDB(genre)
+      default:
+        throw new Error('Invalid game mode')
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    const toastClass = mode === 'genre'
+      ? 'bg-[rgba(34,197,94,0.3)] text-[rgb(134,239,172)] border-[rgba(34,197,94,0.3)]'
+      : mode === 'top100in2weeks'
+      ? 'bg-[rgba(59,130,246,0.3)] text-[rgb(147,197,253)] border-[rgba(59,130,246,0.3)]'
+      : 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+    
+    toast({
+      title: 'Failed to load games',
+      description: errorMessage,
+      className: toastClass
+    })
+    throw error
   }
 }
 

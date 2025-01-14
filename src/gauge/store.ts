@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { GameMode, GaugeStore, GameModeStates, GameState, Game } from './types'
 import { GameEngine } from './engine/gameEngine'
 import { gaugeApi } from '../services/GaugeAPI'
+import { toast } from '../components/ui/use-toast'
 
 const INITIAL_GAME_STATE: GameState = {
   leftGame: null,
@@ -16,6 +17,7 @@ const createInitialModeState = () => ({
   usedGameIds: new Set<number>(),
   currentScore: 0,
   highScore: 0,
+  hasShownHighScoreToast: false,
   currentState: { ...INITIAL_GAME_STATE }
 })
 
@@ -68,15 +70,46 @@ export const useGaugeStore = create<GaugeStore>()(
         engine.usedGameIds = modeState.usedGameIds
         const isCorrect = engine.checkGuess(position, modeState.currentState)
 
+        // Get current score before updating
+        const currentScore = modeState.currentScore
+
         // Update score
-        const newScore = isCorrect ? modeState.currentScore + 1 : 0
-        const newHighScore = Math.max(modeState.highScore || 0, newScore)
+        const newScore = isCorrect ? currentScore + 1 : 0
+        const prevHighScore = modeState.highScore || 0
+        const newHighScore = Math.max(prevHighScore, newScore)
+
+        // Show toast based on result
+        if (isCorrect) {
+          if (newScore > prevHighScore && !modeState.hasShownHighScoreToast) {
+            toast({
+              title: 'New High Score! 🎉',
+              description: `You've reached ${newScore} points!`,
+              className: store.currentMode === 'genre' 
+                ? 'bg-[rgba(34,197,94,0.3)] text-[rgb(134,239,172)] border-[rgba(34,197,94,0.3)]'
+                : store.currentMode === 'top100in2weeks'
+                ? 'bg-[rgba(59,130,246,0.3)] text-[rgb(147,197,253)] border-[rgba(59,130,246,0.3)]'
+                : 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+            })
+          }
+        } else if (currentScore > 2) {
+          // Show game over toast using the current score before reset
+          toast({
+            title: 'Game Over!',
+            description: `Final Score: ${currentScore}`,
+            className: store.currentMode === 'genre'
+              ? 'bg-[rgba(34,197,94,0.3)] text-[rgb(134,239,172)] border-[rgba(34,197,94,0.3)]'
+              : store.currentMode === 'top100in2weeks'
+              ? 'bg-[rgba(59,130,246,0.3)] text-[rgb(147,197,253)] border-[rgba(59,130,246,0.3)]'
+              : 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+          })
+        }
 
         // Start transition
         const updatedState = {
           ...modeState,
           currentScore: newScore,
           highScore: newHighScore,
+          hasShownHighScoreToast: isCorrect && newScore > prevHighScore ? true : false,
           currentState: {
             ...modeState.currentState,
             revealed: true,
@@ -152,6 +185,7 @@ export const useGaugeStore = create<GaugeStore>()(
                 }
               }
             }))
+
           } catch (error) {
             console.error('Failed to load games:', error)
             set({ isLoading: false })
@@ -174,7 +208,8 @@ export const useGaugeStore = create<GaugeStore>()(
             ...state.gameModeStates,
             [modeKey]: {
               ...createInitialModeState(),
-              highScore
+              highScore,
+              hasShownHighScoreToast: false
             }
           }
         }))

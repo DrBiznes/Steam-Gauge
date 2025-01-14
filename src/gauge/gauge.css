@@ -618,4 +618,23 @@
 .game-mode-select .card.recent .scores-container,
 .game-mode-select .card.alltime .scores-container {
   margin-top: 2rem;
+}
+
+/* Toast Styles */
+.toast-genre {
+  background-color: rgba(34, 197, 94, 0.3);
+  color: rgb(134, 239, 172);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.toast-top100in2weeks {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: rgb(147, 197, 253);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.toast-top100forever {
+  background-color: rgba(239, 68, 68, 0.3);
+  color: rgb(252, 165, 165);
+  border-color: rgba(239, 68, 68, 0.5);
 } 

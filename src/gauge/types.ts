@@ -24,6 +24,7 @@ export interface GameModeState {
   usedGameIds: Set<number>
   currentScore: number
   highScore: number
+  hasShownHighScoreToast: boolean
   currentState: GameState
 }
 

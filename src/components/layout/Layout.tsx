@@ -1,6 +1,7 @@
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { useLocation } from "react-router-dom"
+import { Toaster } from "@/components/ui/toaster"
 
 type LayoutProps = {
   children: React.ReactNode
@@ -33,6 +34,7 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
+      <Toaster />
     </div>
   )
 }
