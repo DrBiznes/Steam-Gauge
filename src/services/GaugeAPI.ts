@@ -1,5 +1,6 @@
 import { Game, GameMode } from '../gauge/types'
 import { toast } from '../components/ui/use-toast'
+import top100FallbackData from '../genreDB/top100fallback.json'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
@@ -77,13 +78,11 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Respo
 }
 
 async function getTop100Fallback(): Promise<Game[]> {
-  console.log('Attempting to load fallback data...')
+  console.log('Loading fallback data...')
   try {
-    const response = await fetchWithRetry('/src/genreDB/top100fallback.json')
-    const data = await response.json()
-    const gamesArray = Object.values(data) as SteamSpyGame[]
+    const gamesArray = Object.values(top100FallbackData) as SteamSpyGame[]
     
-    console.log('Successfully loaded fallback data file')
+    console.log('Successfully loaded fallback data')
     
     const validGames = gamesArray
       .map(convertSteamSpyGame)
