@@ -99,12 +99,14 @@ export function GaugePage() {
           </div>
         </motion.div>
 
-        <div className="flex gap-8 items-center justify-center min-h-[400px] w-full overflow-visible mt-16">
-          {isLoading || !gameState ? (
+        {isLoading || !gameState ? (
+          <div className="flex gap-8 items-center justify-center min-h-[400px] w-full overflow-visible mt-16">
             <div className="w-full h-full flex items-center justify-center overflow-visible relative -mt-8">
               <LoadingGauge />
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className="flex gap-8 items-center justify-center min-h-[400px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${gameState.leftGame?.id}-${gameState.rightGame?.id}`}
@@ -151,8 +153,8 @@ export function GaugePage() {
                 </motion.div>
               </motion.div>
             </AnimatePresence>
-          )}
-        </div>
+          </div>
+        )}
 
         <motion.div 
           className="text-center mt-4"
