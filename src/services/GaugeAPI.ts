@@ -31,6 +31,7 @@ interface SteamSpyGame {
 interface CacheEntry {
   data: Game[]
   timestamp: number
+  apiAttempts: number // Track number of API attempts
 }
 
 const cache: Record<string, CacheEntry> = {}
@@ -75,6 +76,45 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Respo
   }
 }
 
+async function getTop100Fallback(): Promise<Game[]> {
+  console.log('Attempting to load fallback data...')
+  try {
+    const response = await fetchWithRetry('/src/genreDB/top100fallback.json')
+    const data = await response.json()
+    const gamesArray = Object.values(data) as SteamSpyGame[]
+    
+    console.log('Successfully loaded fallback data file')
+    
+    const validGames = gamesArray
+      .map(convertSteamSpyGame)
+      .filter(game => 
+        game.steamScore > 0 && 
+        game.totalReviews && game.totalReviews > 500 &&
+        game.name &&
+        game.steamId
+      )
+      .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
+
+    console.log(`Found ${validGames.length} valid games in fallback data`)
+
+    if (validGames.length === 0) {
+      throw new Error('No valid games found in fallback data')
+    }
+
+    return validGames
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    console.error('Fallback data loading failed:', errorMessage)
+    
+    toast({
+      title: 'Error loading fallback data',
+      description: errorMessage,
+      className: 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
+    })
+    throw error
+  }
+}
+
 async function getSteamSpyGames(request: string, params: Record<string, string> = {}): Promise<Game[]> {
   // Create cache key based on request and params
   const cacheKey = JSON.stringify({ request, params })
@@ -86,6 +126,7 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
     return cached.data
   }
 
+  console.log(`Attempting to fetch ${request} data from SteamSpy API...`)
   try {
     // Build URL with parameters
     const queryParams = new URLSearchParams({ request, ...params })
@@ -95,6 +136,8 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
     
     const response = await fetchWithRetry(url)
     const data = await response.json()
+    
+    console.log(`Successfully fetched ${request} data from API`)
     
     // Convert the object of games into an array
     const gamesArray = Object.values(data) as SteamSpyGame[]
@@ -109,33 +152,61 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
         game.steamId // Ensure game has an ID
       )
 
+    console.log(`Found ${validGames.length} valid games from API response`)
+
     if (validGames.length === 0) {
       throw new Error('No valid games found in the response')
     }
     
-    // Cache the results
+    // Cache the results with reset API attempts
     cache[cacheKey] = {
       data: validGames,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      apiAttempts: 0
     }
 
     return validGames
   } catch (error) {
+    // Get current attempts from cache or start at 0
+    const currentAttempts = (cached?.apiAttempts || 0) + 1
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    
+    console.error(`API attempt ${currentAttempts} failed:`, errorMessage)
+    console.log(`${MAX_RETRIES - currentAttempts} retries remaining`)
+
+    // Update cache with attempt count
+    cache[cacheKey] = {
+      ...(cached || { data: [], timestamp: Date.now() }),
+      apiAttempts: currentAttempts
+    }
+
+    // Show toast for the error
     toast({
       title: 'Error fetching games',
       description: errorMessage,
       className: 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
     })
-    throw error
+
+    // If we still have retries left, throw to let fetchWithRetry try again
+    if (currentAttempts < MAX_RETRIES) {
+      console.log('Retrying API call...')
+      throw error
+    }
+
+    // If we've exhausted all retries, try fallback
+    console.log('All API attempts exhausted, switching to fallback data')
+    return getTop100Fallback()
   }
 }
 
 async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
+  console.log(`Attempting to load ${genre} games from local DB...`)
   try {
     const response = await fetchWithRetry(`/src/genreDB/${genre.toLowerCase()}.json`)
     const data = await response.json()
     const gamesArray = Object.values(data) as SteamSpyGame[]
+    
+    console.log(`Successfully loaded ${genre} data file`)
     
     const validGames = gamesArray
       .map(convertSteamSpyGame)
@@ -147,6 +218,8 @@ async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
       )
       .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0))
 
+    console.log(`Found ${validGames.length} valid games for ${genre}`)
+
     if (validGames.length === 0) {
       throw new Error(`No valid games found for genre: ${genre}`)
     }
@@ -154,6 +227,8 @@ async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
     return validGames
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    console.error(`Error loading ${genre} games:`, errorMessage)
+    
     toast({
       title: `Error loading ${genre} games`,
       description: errorMessage,
