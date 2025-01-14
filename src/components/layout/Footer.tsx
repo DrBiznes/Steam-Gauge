@@ -1,10 +1,22 @@
 import { Github, Twitter, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { type HTMLAttributes } from "react"
+import { motion, HTMLMotionProps } from "framer-motion"
 
-export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
+export function Footer({ className, ...props }: HTMLMotionProps<"footer">) {
   return (
-    <footer className={cn("bg-[#F74843] py-6 mt-auto", className)} {...props}>
+    <motion.footer 
+      layout
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 100,
+        damping: 20,
+        mass: 0.5
+      }}
+      className={cn("bg-[#F74843] py-6 mt-auto", className)} 
+      {...props}
+    >
       <div className="container flex flex-col items-center gap-4">
         <div className="flex gap-4">
           <a
@@ -43,6 +55,6 @@ export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
           <p>Not affiliated with Valve Corporation</p>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   )
 }

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import './HomeMenu.css'
 
 const GAMES = [
@@ -23,21 +24,60 @@ const GAMES = [
   },
 ]
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+}
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  }
+}
+
 export function GameList() {
   const navigate = useNavigate()
 
   return (
     <>
-      <div className="menu-header">
+      <motion.div 
+        className="menu-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <h4 className="font-black text-4xl text-[#F74843]">Gaming is Good</h4>
         <p className="text-lg font-medium text-white/90 leading-relaxed mt-4">
           Welcome to our collection of innovative Steam tools and games. We've created these applications to enhance your Steam experience, helping you explore your gaming habits and discover new titles in unique ways.
         </p>
-      </div>
+      </motion.div>
       
-      <div className="menu-list">
+      <motion.div 
+        className="menu-list"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         {GAMES.map((game) => (
-          <div key={game.id} className="menu-item">
+          <motion.div 
+            key={game.id} 
+            className="menu-item"
+            variants={item}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
             <Button
               variant="ghost"
               className="menu-button"
@@ -50,9 +90,9 @@ export function GameList() {
                 {game.description}
               </p>
             </Button>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </>
   )
 } 

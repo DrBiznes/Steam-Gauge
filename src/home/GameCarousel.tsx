@@ -1,5 +1,6 @@
 import './GameCarousel.css'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 
 interface Game {
   id: number
@@ -69,40 +70,51 @@ export const POPULAR_GAMES_2: Game[] = [
 ]
 
 export function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
-  const columnRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const element = columnRef.current
-    if (!element) return
-
-    const handleScroll = () => {
-      const scrolled = window.scrollY
-      const yPos = -(scrolled * speed)
-      element.style.transform = `translate3d(0, ${yPos}px, 0)`
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // Initial position
-
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [speed])
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollY } = useScroll()
+  const y = useTransform(scrollY, [0, 1000], [0, -500 * speed])
 
   return (
-    <div className="game-carousel" ref={columnRef}>
+    <motion.div 
+      className="game-carousel" 
+      ref={ref}
+      style={{ y }}
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8, type: "spring" }}
+    >
       {games.map((game, index) => (
-        <div 
+        <motion.div 
           key={`${game.id}-${index}`}
           className="game-item"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ 
+            duration: 0.5,
+            delay: index * 0.1,
+            type: "spring",
+            stiffness: 100
+          }}
+          whileHover={{ 
+            scale: 1.05,
+            transition: { duration: 0.2 }
+          }}
         >
-          <div className="game-cover">
+          <motion.div 
+            className="game-cover"
+            whileHover={{ 
+              rotateY: 10,
+              boxShadow: "0 5px 15px rgba(0,0,0,0.3)"
+            }}
+          >
             <img
               src={game.coverUrl}
               alt={game.title}
               loading="lazy"
             />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   )
 }

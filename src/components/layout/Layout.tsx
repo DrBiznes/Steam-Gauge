@@ -2,6 +2,7 @@ import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { useLocation } from "react-router-dom"
 import { Toaster } from "@/components/ui/toaster"
+import { AnimatePresence, LayoutGroup } from "framer-motion"
 
 type LayoutProps = {
   children: React.ReactNode
@@ -27,14 +28,18 @@ export function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className={`bg-base ${getBackgroundClass()}`} />
-      <Header />
-      <main className="flex-1">
-        {children}
-      </main>
-      <Footer />
-      <Toaster />
-    </div>
+    <LayoutGroup>
+      <div className="min-h-screen flex flex-col overflow-hidden">
+        <div className={`bg-base ${getBackgroundClass()}`} />
+        <Header />
+        <AnimatePresence mode="wait">
+          <main className="flex-1">
+            {children}
+          </main>
+        </AnimatePresence>
+        <Footer />
+        <Toaster />
+      </div>
+    </LayoutGroup>
   )
 }
