@@ -6,15 +6,15 @@ import './HomeMenu.css'
 const GAMES = [
   {
     id: 1,
-    name: "Steam Gauge",
+    name: "Gauge-ing Game",
     path: "/gauge",
-    description: "Dive deep into your Steam library analytics. Track your gaming habits, discover insights about your playtime, and understand your gaming preferences through detailed statistics and visualizations."
+    description: "I love games but some people don't, they leave mean reviews on Steam to let the developers know. Guess which game has fewer mean reviews."
   },
   {
     id: 2,
-    name: "Steam Guess",
+    name: "Cover Artfuscation",
     path: "/steam-guess",
-    description: "Test your knowledge of Steam games in this engaging quiz game. Challenge yourself with questions about release dates, genres, developers, and more while learning about new titles."
+    description: "Guess the game based on the cover art pixel art/gif. It's a lot harder than you think. I'm not sure if I'm proud of this one or not."
   },
   {
     id: 3,
@@ -60,7 +60,7 @@ export function GameList() {
       >
         <h4 className="font-black text-4xl text-[#F74843]">Gaming is Good</h4>
         <p className="text-lg font-medium text-white/90 leading-relaxed mt-4">
-          Welcome to our collection of innovative Steam tools and games. We've created these applications to enhance your Steam experience, helping you explore your gaming habits and discover new titles in unique ways.
+          Gaming is so good I made a bunch of games about gaming. The first one is about Steam reviews. The other one is about cover art. You can play them here.
         </p>
       </motion.div>
       
