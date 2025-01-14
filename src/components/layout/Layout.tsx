@@ -12,11 +12,14 @@ export function Layout({ children }: LayoutProps) {
 
   // Define background classes based on route
   const getBackgroundClass = () => {
+    // Check if path starts with /gauge
+    if (path.startsWith('/gauge')) {
+      return 'bg-gauge'
+    }
+
     switch (path) {
       case '/':
         return 'bg-home'
-      case '/steam-gauge':
-        return 'bg-gauge'
       default:
         return 'bg-home'
     }

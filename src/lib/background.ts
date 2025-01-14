@@ -19,5 +19,17 @@ export const backgrounds: PageBackgrounds = {
   gauge: {
     image: gaugeBg,
     overlay: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))'
+  },
+  'gauge/top100in2weeks': {
+    image: gaugeBg,
+    overlay: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))'
+  },
+  'gauge/top100forever': {
+    image: gaugeBg,
+    overlay: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))'
+  },
+  'gauge/genre': {
+    image: gaugeBg,
+    overlay: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3))'
   }
 }
