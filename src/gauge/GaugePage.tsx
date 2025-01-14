@@ -99,9 +99,11 @@ export function GaugePage() {
           </div>
         </motion.div>
 
-        <div className="flex gap-8 items-center justify-center min-h-[400px]">
+        <div className="flex gap-8 items-center justify-center min-h-[400px] w-full overflow-visible mt-16">
           {isLoading || !gameState ? (
-            <LoadingGauge />
+            <div className="w-full h-full flex items-center justify-center overflow-visible relative -mt-8">
+              <LoadingGauge />
+            </div>
           ) : (
             <AnimatePresence mode="wait">
               <motion.div

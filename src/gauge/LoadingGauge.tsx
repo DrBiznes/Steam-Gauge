@@ -8,8 +8,18 @@ const LoadingGauge: React.FC = () => {
         <div className="gauge-dial">
           <div className="gauge-needle"></div>
           <div className="gauge-center"></div>
+          <div className="loading-text">LOADING</div>
+          <div className="steam">
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+            <span className="steam-cloud"></span>
+          </div>
         </div>
-        <div className="loading-text">Loading...</div>
       </div>
     </div>
   );
