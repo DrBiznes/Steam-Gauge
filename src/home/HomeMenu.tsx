@@ -29,7 +29,7 @@ export function GameList() {
   return (
     <>
       <div className="menu-header">
-        <h2 className="font-black text-6xl text-white">Gaming is Good</h2>
+        <h4 className="font-black text-4xl text-[#F74843]">Gaming is Good</h4>
         <p className="text-lg font-medium text-white/90 leading-relaxed mt-4">
           Welcome to our collection of innovative Steam tools and games. We've created these applications to enhance your Steam experience, helping you explore your gaming habits and discover new titles in unique ways.
         </p>

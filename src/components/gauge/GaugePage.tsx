@@ -83,13 +83,18 @@ export function GaugePage() {
     <div className="min-h-screen pt-16 px-4">
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-8 py-12">
         <motion.div 
-          className="text-center mb-8"
+          className="text-center mb-8 flex flex-col items-center gap-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="text-4xl font-bold mb-4 text-white">{pageTitle}</h1>
-          <div className="text-xl text-white">
+          <h1 className={`text-4xl font-bold text-white px-4 py-2 ${
+            currentMode === 'top100in2weeks' ? 'bg-[#2563eb]' :
+            currentMode === 'top100forever' ? 'bg-[#dc2626]' :
+            currentMode === 'genre' ? 'bg-[#059669]' :
+            'bg-[#F74843]'
+          }`}>{pageTitle}</h1>
+          <div className="text-xl text-white px-4 py-2 bg-[#2F2F2F]">
             Score: {currentScore} | High Score: {highScore}
           </div>
         </motion.div>
@@ -153,7 +158,7 @@ export function GaugePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <p className="text-lg text-white">
+          <p className="text-lg text-white px-4 py-2 bg-[#2F2F2F] inline-block">
             Click on the game you think has a higher Steam user review score!
           </p>
           <AnimatePresence mode="wait">

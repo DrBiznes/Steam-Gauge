@@ -4,11 +4,11 @@ import { type HTMLAttributes } from "react"
 
 export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
-    <footer className={cn("border-t border-border/40 bg-[#F74843] py-6 mt-auto", className)} {...props}>
+    <footer className={cn("bg-[#F74843] py-6 mt-auto", className)} {...props}>
       <div className="container flex flex-col items-center gap-4">
         <div className="flex gap-4">
           <a
-            href="https://github.com/jamino30"
+            href="https://github.com/DrBiznes"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -18,7 +18,7 @@ export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
             <Github className="h-6 w-6" />
           </a>
           <a
-            href="https://twitter.com/jamino30"
+            href="https://twitter.com/DrBiznez"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -28,7 +28,7 @@ export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
             <Twitter className="h-6 w-6" />
           </a>
           <a
-            href="https://jamino.dev"
+            href="https://jamino.me"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -39,7 +39,7 @@ export function Footer({ className, ...props }: HTMLAttributes<HTMLElement>) {
           </a>
         </div>
         <div className="flex flex-col items-center gap-2 text-sm text-white/75">
-          <p>© 2025 jamino. MIT License</p>
+          <p>© 2025 Jamino. MIT License</p>
           <p>Not affiliated with Valve Corporation</p>
         </div>
       </div>

@@ -239,12 +239,20 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  background: linear-gradient(180deg, #ffffff 0%, #b8b8b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: white;
   text-shadow: 0 2px 20px rgba(255, 255, 255, 0.15);
   margin-bottom: 3rem;
   padding-top: 2rem;
+  display: inline-block;
+}
+
+.game-mode-select h1.title-highlight {
+  background: #F74843;
+  padding: 0.5rem 2rem;
+  text-shadow: none;
+  margin-bottom: 3rem;
+  padding-top: 0.5rem;
+  line-height: 1;
 }
 
 /* Recent Top 100 Card */
