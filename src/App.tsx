@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout"
 import { Routes, Route } from "react-router-dom"
 import { Home } from "@/home/Home"
-import { GaugePage } from "@/components/gauge/GaugePage"
+import { GaugePage } from "@/gauge/GaugePage"
 
 function App() {
   return (

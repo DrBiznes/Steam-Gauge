@@ -1,4 +1,4 @@
-import { Game, GameMode } from '../components/gauge/types'
+import { Game, GameMode } from '../gauge/types'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
@@ -112,7 +112,7 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
 
 async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
   try {
-    const response = await fetch(`/src/components/gauge/genreDB/${genre.toLowerCase()}.json`)
+    const response = await fetch(`/src/genreDB/${genre.toLowerCase()}.json`)
     if (!response.ok) {
       throw new Error(`Failed to load ${genre} database`)
     }

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { GameMode, GaugeStore, GameModeStates, GameState, Game } from './types'
 import { GameEngine } from './engine/gameEngine'
-import { gaugeApi } from '../../services/GaugeAPI'
+import { gaugeApi } from '../services/GaugeAPI'
 
 const INITIAL_GAME_STATE: GameState = {
   leftGame: null,

@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useGaugeStore } from "../gauge/store"
+import { useGaugeStore } from "../../gauge/store"
 
 const POPULAR_GENRES = [
   { value: "Action", label: "Action" },
