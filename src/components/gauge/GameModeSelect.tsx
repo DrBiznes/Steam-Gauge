@@ -145,6 +145,15 @@ export function GameModeSelect() {
         Choose Your Challenge
       </motion.h1>
       
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+        className="subtitle-highlight"
+      >
+        Pick the game with the higher Steam user review score!
+      </motion.div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ModeCard
           title="Top 100 Recent"

@@ -250,9 +250,20 @@
   background: #F74843;
   padding: 0.5rem 2rem;
   text-shadow: none;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   padding-top: 0.5rem;
   line-height: 1;
+}
+
+.game-mode-select .subtitle-highlight {
+  background: #2F2F2F;
+  padding: 0.5rem 2rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  display: inline-block;
 }
 
 /* Recent Top 100 Card */
