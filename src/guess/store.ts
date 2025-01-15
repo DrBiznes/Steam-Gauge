@@ -37,7 +37,7 @@ function generateHint(game: Game): Hint | null {
 
   const availableHints: Hint[] = []
 
-  // Release year hint
+  // Release year hint (always first)
   if (game.storeDetails.release_date?.date) {
     const year = new Date(game.storeDetails.release_date.date).getFullYear()
     availableHints.push({
@@ -79,7 +79,7 @@ function generateHint(game: Game): Hint | null {
   }
 
   return availableHints.length > 0 
-    ? availableHints[Math.floor(Math.random() * availableHints.length)]
+    ? availableHints[0] // Return first available hint
     : null
 }
 
@@ -317,6 +317,10 @@ export const useGuessStore = create<GuessStore>()(
             const engine = new GuessEngine(games)
             const initialGame = engine.selectNewGame()
 
+            // Generate first hint
+            const firstHint = initialGame ? generateHint(initialGame) : null
+            const initialHints = firstHint ? [firstHint] : []
+
             const existingState = store.gameModeStates[modeKey]
             const currentScore = existingState?.currentScore || 0
             const highScore = existingState?.highScore || 0
@@ -334,7 +338,7 @@ export const useGuessStore = create<GuessStore>()(
                   currentState: {
                     currentGame: initialGame,
                     pixelationLevel: 1,
-                    hints: [],
+                    hints: initialHints,
                     revealed: false,
                     isLoading: false,
                     hasError: false

@@ -6,7 +6,8 @@ const STEAMSPY_API = 'https://steamspy.com/api.php'
 const STEAM_STORE_API = 'https://store.steampowered.com/api/appdetails'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
 const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // 1 second
+const RETRY_DELAY = 2000 // 2 seconds
+const API_TIMEOUT = 5000 // 5 seconds
 
 interface SteamSpyGame {
   appid: number
@@ -67,6 +68,31 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Respo
   }
 }
 
+async function fetchWithRetryAndTimeout(url: string, retries = MAX_RETRIES): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
+
+  try {
+    const response = await fetch(url, { signal: controller.signal })
+    clearTimeout(timeoutId)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    return response
+  } catch (error: unknown) {
+    clearTimeout(timeoutId)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out')
+    }
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
+      return fetchWithRetryAndTimeout(url, retries - 1)
+    }
+    throw error
+  }
+}
+
 // New function to fetch Steam Store details
 async function fetchStoreDetails(steamId: number): Promise<SteamStoreDetails> {
   // Check cache first
@@ -77,10 +103,10 @@ async function fetchStoreDetails(steamId: number): Promise<SteamStoreDetails> {
 
   try {
     const url = `${STEAM_STORE_API}?appids=${steamId}&cc=us&l=english`
-    const response = await fetchWithRetry(`${CORS_PROXY}${encodeURIComponent(url)}`)
+    const response = await fetchWithRetryAndTimeout(`${CORS_PROXY}${encodeURIComponent(url)}`)
     const data = await response.json()
 
-    if (!data[steamId].success) {
+    if (!data[steamId]?.success) {
       throw new Error(`Failed to fetch store details for game ${steamId}`)
     }
 
@@ -94,8 +120,7 @@ async function fetchStoreDetails(steamId: number): Promise<SteamStoreDetails> {
 
     return storeDetails
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    console.error(`Failed to fetch store details for game ${steamId}:`, errorMessage)
+    console.error(`Failed to fetch store details for game ${steamId}:`, error)
     throw error
   }
 }

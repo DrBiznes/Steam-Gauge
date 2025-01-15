@@ -136,7 +136,6 @@ export function GuessPage() {
                 <GuessInput
                   onSubmit={handleSubmitGuess}
                   onSkip={handleSkip}
-                  onHint={revealHint}
                   isSubmitting={isSubmitting}
                   isRevealed={gameState.revealed}
                   gamePool={currentModeState.gamePool}
@@ -144,8 +143,8 @@ export function GuessPage() {
 
                 {/* Game Progress */}
                 <div className="flex justify-between items-center text-white/80 text-sm">
-                  <div>Pixelation Level: {gameState.pixelationLevel}/6</div>
-                  <div>Hints Used: {gameState.hints.length}</div>
+                  <div>Lives Remaining: {6 - gameState.pixelationLevel}/5</div>
+                  <div>Hints Revealed: {gameState.hints.length}/5</div>
                 </div>
 
                 {/* Instructions */}
@@ -155,8 +154,8 @@ export function GuessPage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <p>Wrong guesses will reduce pixelation and reveal hints</p>
-                  <p>Skip or incorrect final guess will reset your score</p>
+                  <p>Wrong guesses will reveal hints and reduce remaining lives</p>
+                  <p>Skip or running out of lives will reset your score</p>
                 </motion.div>
               </motion.div>
             </AnimatePresence>

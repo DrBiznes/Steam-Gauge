@@ -2,15 +2,15 @@ import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Lightbulb, SkipForward } from "lucide-react"
+import { SkipForward } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Game } from "./types"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 
 interface GuessInputProps {
   onSubmit: (guess: string) => Promise<void>
   onSkip: () => Promise<void>
-  onHint: () => void
   isSubmitting: boolean
   isRevealed: boolean
   gamePool: Game[]
@@ -19,7 +19,6 @@ interface GuessInputProps {
 export function GuessInput({ 
   onSubmit, 
   onSkip, 
-  onHint, 
   isSubmitting, 
   isRevealed,
   gamePool 
@@ -157,13 +156,22 @@ export function GuessInput({
           >
             Guess
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-[#2F2F2F] text-white border-none hover:bg-[#404040]"
+            onClick={onSkip}
+            disabled={isSubmitting}
+          >
+            <SkipForward className="w-4 h-4" />
+          </Button>
 
           {/* Suggestions Dropdown */}
           <AnimatePresence>
             {showSuggestions && suggestions.length > 0 && (
               <motion.div
                 ref={suggestionsRef}
-                className="absolute top-full left-0 right-0 mt-1 bg-[#2F2F2F] border border-[#3F3F3F] rounded-md overflow-hidden z-50"
+                className="absolute top-full left-0 right-0 mt-1 bg-[#2F2F2F] border border-[#3F3F3F] overflow-hidden z-50"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -187,29 +195,6 @@ export function GuessInput({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-        
-        <div className="flex justify-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="bg-[#2F2F2F] text-white border-none hover:bg-[#404040]"
-            onClick={onHint}
-            disabled={isSubmitting || isRevealed}
-          >
-            <Lightbulb className="w-4 h-4 mr-2" />
-            Get Hint
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="bg-[#2F2F2F] text-white border-none hover:bg-[#404040]"
-            onClick={onSkip}
-            disabled={isSubmitting}
-          >
-            <SkipForward className="w-4 h-4 mr-2" />
-            Skip Game
-          </Button>
         </div>
       </form>
     </div>
