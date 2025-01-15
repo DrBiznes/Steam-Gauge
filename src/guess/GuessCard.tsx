@@ -1,5 +1,3 @@
-// src/guess/GuessCard.tsx
-
 import { useState, useEffect, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { Game, Hint } from "./types"
@@ -17,13 +15,13 @@ const pixelateImage = (
   const w = canvas.width
   const h = canvas.height
 
-  // Draw original image first
+  // Draw original image
   ctx.drawImage(image, 0, 0, w, h)
 
-  // Scale down and up to create pixelation effect
+  // Apply pixelation if needed
   if (pixelSize > 1) {
     const scaledW = w / pixelSize
-    const scaledH = h / pixelSize
+    const scaledHeight = h / pixelSize
 
     // Create temporary canvas for pixelation
     const tempCanvas = document.createElement('canvas')
@@ -39,11 +37,11 @@ const pixelateImage = (
       ctx.clearRect(0, 0, w, h)
       
       // Draw scaled down
-      ctx.drawImage(tempCanvas, 0, 0, w, h, 0, 0, scaledW, scaledH)
+      ctx.drawImage(tempCanvas, 0, 0, w, h, 0, 0, scaledW, scaledHeight)
       
       // Draw scaled up
       ctx.imageSmoothingEnabled = false
-      ctx.drawImage(canvas, 0, 0, scaledW, scaledH, 0, 0, w, h)
+      ctx.drawImage(canvas, 0, 0, scaledW, scaledHeight, 0, 0, w, h)
     }
   }
 }
@@ -64,7 +62,6 @@ export function GuessCard({
   onLoad 
 }: GuessCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageError, setImageError] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
   const [currentGameId, setCurrentGameId] = useState<number | null>(null)
@@ -79,7 +76,6 @@ export function GuessCard({
   useEffect(() => {
     if (game?.id !== currentGameId) {
       setImageLoaded(false)
-      setImageError(false)
       setCurrentGameId(game?.id || null)
     }
   }, [game?.id])
@@ -90,6 +86,7 @@ export function GuessCard({
     }
   }, [game, onLoad])
 
+  // Apply pixelation effect when image loads or level changes
   useEffect(() => {
     if (!imageLoaded || !canvasRef.current || !imageRef.current) return
 
@@ -97,17 +94,13 @@ export function GuessCard({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size to match cover dimensions
+    // Set canvas size
     canvas.width = 300
     canvas.height = 450
 
     // Apply pixelation effect
     pixelateImage(ctx, imageRef.current, canvas, getPixelSize(pixelationLevel))
   }, [imageLoaded, pixelationLevel])
-
-  const getPlaceholderImage = () => {
-    return 'https://placehold.co/600x900?text=No+Image'
-  }
 
   if (!game) {
     return (
@@ -141,19 +134,17 @@ export function GuessCard({
               className="hidden"
               onLoad={() => {
                 setImageLoaded(true)
-                setImageError(false)
               }}
               onError={(e) => {
-                setImageError(true)
+                e.currentTarget.src = 'https://placehold.co/300x450?text=No+Image'
                 setImageLoaded(true)
-                e.currentTarget.src = getPlaceholderImage()
               }}
             />
             
             {/* Canvas for pixelation effect */}
             <AnimatePresence mode="wait">
               <motion.canvas
-                key={game.id}
+                key={`canvas-${game.id}`}
                 ref={canvasRef}
                 className="game-cover"
                 initial={{ opacity: 0 }}
@@ -189,15 +180,9 @@ export function GuessCard({
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.3 }}
                     >
-                      <div className="steam-score">
-                        Steam Score: {game.steamScore}%
-                      </div>
-                      <div className="total-reviews">
-                        Total Reviews: {game.totalReviews?.toLocaleString()}
-                      </div>
-                      <div className="recent-players">
-                        Recent Players: {game.averagePlayers2Weeks.toLocaleString()}
-                      </div>
+                      <div>Steam Score: {game.steamScore}%</div>
+                      <div>Total Reviews: {game.totalReviews?.toLocaleString()}</div>
+                      <div>Recent Players: {game.averagePlayers2Weeks.toLocaleString()}</div>
                     </motion.div>
                   )}
                 </motion.div>
@@ -205,28 +190,7 @@ export function GuessCard({
             </AnimatePresence>
           </div>
         </div>
-
-        {/* Pixelation Level Indicator */}
-        <div className="pixelation-indicator">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className={`indicator-dot ${index >= 6 - pixelationLevel ? 'active' : ''}`}
-            />
-          ))}
-        </div>
       </Card>
     </motion.div>
   )
-}
-
-function getHintBackground(index: number) {
-  const colors = [
-    'rgba(59, 130, 246, 0.1)',  // blue
-    'rgba(16, 185, 129, 0.1)',  // green
-    'rgba(239, 68, 68, 0.1)',   // red
-    'rgba(245, 158, 11, 0.1)',  // yellow
-    'rgba(139, 92, 246, 0.1)'   // purple
-  ]
-  return colors[index % colors.length]
 }
