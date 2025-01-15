@@ -13,15 +13,17 @@ import {
 } from './types'
 import { GuessEngine } from './engine/guessEngine'
 import { toast } from '../components/ui/use-toast'
-import { guessApi } from '../services/GuessAPI'
+import { guessApi, prepareGameHints } from '../services/GuessAPI'
 
 const INITIAL_GAME_STATE: GameState = {
   currentGame: null,
   pixelationLevel: 1,
   hints: [],
+  availableHints: [],
   revealed: false,
   isLoading: false,
-  hasError: false
+  hasError: false,
+  hasStoreData: false
 }
 
 const createInitialModeState = () => ({
@@ -31,57 +33,6 @@ const createInitialModeState = () => ({
   highScore: 0,
   currentState: { ...INITIAL_GAME_STATE }
 })
-
-function generateHint(game: Game): Hint | null {
-  if (!game.storeDetails) return null
-
-  const availableHints: Hint[] = []
-
-  // Release year hint (always first)
-  if (game.storeDetails.release_date?.date) {
-    const year = new Date(game.storeDetails.release_date.date).getFullYear()
-    availableHints.push({
-      type: 'releaseYear',
-      text: `This game was released in ${year}`
-    })
-  }
-
-  // Developer hint
-  if (game.storeDetails.developers?.[0]) {
-    availableHints.push({
-      type: 'developer',
-      text: `This game was developed by ${game.storeDetails.developers[0]}`
-    })
-  }
-
-  // Genre hint
-  if (game.storeDetails.genres?.[0]) {
-    availableHints.push({
-      type: 'genre',
-      text: `This is a ${game.storeDetails.genres[0].description} game`
-    })
-  }
-
-  // Popular tag hint
-  if (game.storeDetails.tags?.[0]) {
-    availableHints.push({
-      type: 'tag',
-      text: `This game's most popular tag is "${game.storeDetails.tags[0].name}"`
-    })
-  }
-
-  // Metacritic hint
-  if (game.storeDetails.metacritic?.score) {
-    availableHints.push({
-      type: 'metacritic',
-      text: `This game has a Metacritic score of ${game.storeDetails.metacritic.score}`
-    })
-  }
-
-  return availableHints.length > 0 
-    ? availableHints[0] // Return first available hint
-    : null
-}
 
 export const useGuessStore = create<GuessStore>()(
   persist(
@@ -136,7 +87,12 @@ export const useGuessStore = create<GuessStore>()(
           if (newScore > modeState.highScore) {
             toast({
               title: 'New High Score! 🎉',
-              description: `You've reached ${newScore} points!`
+              description: `You've reached ${newScore} points!`,
+              className: store.currentMode === 'genre'
+                ? 'bg-[rgba(34,197,94,0.3)] text-[rgb(134,239,172)] border-[rgba(34,197,94,0.3)]'
+                : store.currentMode === 'top100in2weeks'
+                ? 'bg-[rgba(59,130,246,0.3)] text-[rgb(147,197,253)] border-[rgba(59,130,246,0.3)]'
+                : 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
             })
           }
 
@@ -159,8 +115,9 @@ export const useGuessStore = create<GuessStore>()(
           // Wait for reveal animation
           await new Promise(resolve => setTimeout(resolve, 2000))
           
-          // Get next game
+          // Get next game and prepare its hints
           const nextGame = engine.selectNewGame()
+          const { hints, hasStoreData } = await prepareGameHints(nextGame)
           
           // Then transition to the next game with updated state
           set(state => ({
@@ -168,17 +125,18 @@ export const useGuessStore = create<GuessStore>()(
               ...state.gameModeStates,
               [modeKey]: {
                 ...modeState,
-                gamePool: modeState.gamePool,
                 usedGameIds: engine.usedGameIds,
                 currentScore: newScore,
                 highScore: newHighScore,
                 currentState: {
                   currentGame: nextGame,
                   pixelationLevel: 1,
-                  hints: [],
+                  hints: hints,
+                  availableHints: hints,
                   revealed: false,
                   isLoading: false,
-                  hasError: false
+                  hasError: false,
+                  hasStoreData
                 }
               }
             }
@@ -192,11 +150,13 @@ export const useGuessStore = create<GuessStore>()(
             ? currentState.pixelationLevel + 1 
             : currentState.pixelationLevel) as PixelationLevel
 
-          // Generate new hint if available
-          const newHint = currentState.currentGame ? generateHint(currentState.currentGame) : null
-          const updatedHints = newHint 
-            ? [...currentState.hints, newHint]
-            : currentState.hints
+          // Reveal next hint based on current pixelation level
+          const updatedHints = currentState.hints.map((hint, index) => {
+            if (index < newPixelationLevel) {
+              return { ...hint, revealed: true }
+            }
+            return hint
+          })
 
           // Check if this was the last guess
           const isLastGuess = newPixelationLevel === 6
@@ -219,16 +179,27 @@ export const useGuessStore = create<GuessStore>()(
               }
             }))
 
+            if (!currentState.currentGame) {
+              console.warn('No current game available')
+              return false
+            }
+
             toast({
               title: 'Game Over!',
-              description: `The game was: ${currentState.currentGame?.name}. Your score has been reset.`
+              description: `The game was: ${currentState.currentGame.name}`,
+              className: store.currentMode === 'genre'
+                ? 'bg-[rgba(34,197,94,0.3)] text-[rgb(134,239,172)] border-[rgba(34,197,94,0.3)]'
+                : store.currentMode === 'top100in2weeks'
+                ? 'bg-[rgba(59,130,246,0.3)] text-[rgb(147,197,253)] border-[rgba(59,130,246,0.3)]'
+                : 'bg-[rgba(239,68,68,0.3)] text-[rgb(252,165,165)] border-[rgba(239,68,68,0.3)]'
             })
 
             // Wait for reveal animation
             await new Promise(resolve => setTimeout(resolve, 2000))
             
-            // Get next game
+            // Get next game and prepare its hints
             const nextGame = engine.selectNewGame()
+            const { hints, hasStoreData } = await prepareGameHints(nextGame)
             
             // Then transition to the next game
             set(state => ({
@@ -241,10 +212,12 @@ export const useGuessStore = create<GuessStore>()(
                   currentState: {
                     currentGame: nextGame,
                     pixelationLevel: 1,
-                    hints: [],
+                    hints: hints,
+                    availableHints: hints,
                     revealed: false,
                     isLoading: false,
-                    hasError: false
+                    hasError: false,
+                    hasStoreData
                   }
                 }
               }
@@ -279,8 +252,14 @@ export const useGuessStore = create<GuessStore>()(
         const modeState = store.gameModeStates[modeKey]
         if (!modeState?.currentState.currentGame) return
 
-        const newHint = generateHint(modeState.currentState.currentGame)
-        if (!newHint) return
+        const currentState = modeState.currentState
+        const unrevealedHints = currentState.availableHints.filter(h => !h.revealed)
+        if (unrevealedHints.length === 0) return
+
+        const nextHint = unrevealedHints[0]
+        const updatedHints = currentState.hints.map(hint => 
+          hint === nextHint ? { ...hint, revealed: true } : hint
+        )
 
         set(state => ({
           gameModeStates: {
@@ -288,8 +267,8 @@ export const useGuessStore = create<GuessStore>()(
             [modeKey]: {
               ...modeState,
               currentState: {
-                ...modeState.currentState,
-                hints: [...modeState.currentState.hints, newHint]
+                ...currentState,
+                hints: updatedHints
               }
             }
           }
@@ -316,10 +295,7 @@ export const useGuessStore = create<GuessStore>()(
             
             const engine = new GuessEngine(games)
             const initialGame = engine.selectNewGame()
-
-            // Generate first hint
-            const firstHint = initialGame ? generateHint(initialGame) : null
-            const initialHints = firstHint ? [firstHint] : []
+            const { hints, hasStoreData } = await prepareGameHints(initialGame)
 
             const existingState = store.gameModeStates[modeKey]
             const currentScore = existingState?.currentScore || 0
@@ -338,10 +314,12 @@ export const useGuessStore = create<GuessStore>()(
                   currentState: {
                     currentGame: initialGame,
                     pixelationLevel: 1,
-                    hints: initialHints,
+                    hints: hints,
+                    availableHints: hints,
                     revealed: false,
                     isLoading: false,
-                    hasError: false
+                    hasError: false,
+                    hasStoreData
                   }
                 }
               }
@@ -366,7 +344,6 @@ export const useGuessStore = create<GuessStore>()(
         const engine = new GuessEngine(modeState.gamePool)
         engine.usedGameIds = modeState.usedGameIds
 
-        // Reset score on skip
         const currentGame = modeState.currentState.currentGame
         if (currentGame) {
           toast({
@@ -375,8 +352,9 @@ export const useGuessStore = create<GuessStore>()(
           })
         }
 
-        // Get next game
+        // Get next game and prepare its hints
         const nextGame = engine.selectNewGame()
+        const { hints, hasStoreData } = await prepareGameHints(nextGame)
         
         set(state => ({
           gameModeStates: {
@@ -388,10 +366,12 @@ export const useGuessStore = create<GuessStore>()(
               currentState: {
                 currentGame: nextGame,
                 pixelationLevel: 1,
-                hints: [],
+                hints: hints,
+                availableHints: hints,
                 revealed: false,
                 isLoading: false,
-                hasError: false
+                hasError: false,
+                hasStoreData
               }
             }
           }

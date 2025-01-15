@@ -1,3 +1,5 @@
+// src/guess/engine/guessEngine.ts
+
 import { Game } from '../types'
 
 export class GuessEngine {
@@ -36,28 +38,26 @@ export class GuessEngine {
   }
 
   public checkGuess(guess: string, currentGame: Game | null): boolean {
-    if (!currentGame) return false;  // Early return if game is null
-    
+    if (!currentGame) return false;
+
     // Normalize strings for comparison
     const normalizeString = (str: string) => {
-        return str
-            .toLowerCase()
-            .replace(/[^a-z0-9\s]/g, '')
-            .replace(/\s+/g, ' ')
-            .trim()
+      return str
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')  // Remove special characters
+        .replace(/\s+/g, ' ')         // Normalize spaces
+        .trim()
     }
 
     const normalizedGuess = normalizeString(guess)
     const normalizedGameName = normalizeString(currentGame.name)
+
     // Check for exact match first
     if (normalizedGuess === normalizedGameName) {
       return true
     }
 
-    // Check for close matches (e.g., "CS:GO" for "Counter-Strike: Global Offensive")
-    // You could implement fuzzy matching or acronym matching here
-    
-    // Example acronym matching:
+    // Check for acronym match (e.g., "CS:GO" for "Counter-Strike: Global Offensive")
     const createAcronym = (str: string) => {
       return str
         .split(' ')
@@ -73,11 +73,19 @@ export class GuessEngine {
       return true
     }
 
-    // For games with colons, check if the part before the colon matches
+    // Check for partial name match (e.g., "Counter-Strike" for "Counter-Strike: Global Offensive")
     const gameNameParts = normalizedGameName.split(':')[0].trim()
     const guessParts = normalizedGuess.split(':')[0].trim()
 
     if (gameNameParts === guessParts) {
+      return true
+    }
+
+    // Check for substring match (e.g., "Portal" for "Portal 2")
+    const nameWithoutNumbers = normalizedGameName.replace(/\d+/g, '').trim()
+    const guessWithoutNumbers = normalizedGuess.replace(/\d+/g, '').trim()
+
+    if (nameWithoutNumbers === guessWithoutNumbers) {
       return true
     }
 

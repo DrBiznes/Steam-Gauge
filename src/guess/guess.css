@@ -48,30 +48,86 @@
 }
 
 .hints-list {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   overflow-y: auto;
+  max-height: 400px;
+  padding-right: 0.5rem;
+}
+
+/* Scrollbar styles */
+.hints-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hints-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.hints-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.hints-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .hint-card {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 0;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hint-card.basic {
+  background: rgba(247, 72, 67, 0.1);
+  border-color: rgba(247, 72, 67, 0.2);
+}
+
+.hint-card.enhanced {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.hint-card.placeholder {
+  opacity: 0.3;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .hint-content {
-  padding: 0.75rem 1rem;
+  padding: 1rem;
+}
+
+.hint-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.hint-icon {
+  color: #F74843;
+  opacity: 0.9;
+}
+
+.hint-card.enhanced .hint-icon {
+  color: rgb(59, 130, 246);
 }
 
 .hint-type {
   font-size: 0.75rem;
   text-transform: uppercase;
   color: #F74843;
-  margin-bottom: 0.25rem;
   font-weight: 600;
   letter-spacing: 0.05em;
+}
+
+.hint-card.enhanced .hint-type {
+  color: rgb(59, 130, 246);
 }
 
 .hint-text {
@@ -80,14 +136,11 @@
   line-height: 1.4;
 }
 
-.hint-card.placeholder {
-  opacity: 0.3;
-}
-
 .hint-placeholder {
   color: rgba(255, 255, 255, 0.5);
   text-align: center;
   font-size: 1rem;
+  padding: 0.5rem;
 }
 
 /* Cover Styles */
