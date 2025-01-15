@@ -101,7 +101,7 @@ export function GameCarousel({ games, speed = 0.5 }: GameCarouselProps) {
           }}
         >
           <motion.div 
-            className="game-cover"
+            className="carousel-game-cover"
             whileHover={{ 
               rotateY: 10,
               boxShadow: "0 5px 15px rgba(0,0,0,0.3)"

@@ -26,7 +26,7 @@
   opacity: 1;
 }
 
-.game-cover {
+.carousel-game-cover {
   width: 100%;
   height: 100%;
   border-radius: 0.5rem;
@@ -35,12 +35,12 @@
   transition: transform 0.3s ease;
 }
 
-.game-cover:hover {
+.carousel-game-cover:hover {
   transform: scale(1.05);
   z-index: 1;
 }
 
-.game-cover img {
+.carousel-game-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
