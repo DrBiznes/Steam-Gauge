@@ -144,7 +144,6 @@ export function GuessPage() {
                 {/* Game Progress */}
                 <div className="flex justify-between items-center text-white/80 text-sm">
                   <div>Lives Remaining: {6 - gameState.pixelationLevel}/5</div>
-                  <div>Hints Revealed: {gameState.hints.length}/5</div>
                 </div>
 
                 {/* Instructions */}
@@ -154,7 +153,7 @@ export function GuessPage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <p>Wrong guesses will reveal hints and reduce remaining lives</p>
+                  <p>Wrong guesses will reveal hints and more of the image</p>
                   <p>Skip or running out of lives will reset your score</p>
                 </motion.div>
               </motion.div>

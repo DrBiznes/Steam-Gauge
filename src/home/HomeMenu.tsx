@@ -13,8 +13,8 @@ const GAMES = [
   {
     id: 2,
     name: "Cover Artfuscation",
-    path: "/steam-guess",
-    description: "Guess the game based on the cover art pixel art/gif. It's a lot harder than you think. I'm not sure if I'm proud of this one or not."
+    path: "/artfuscation",
+    description: "Kinda like framed but with cover art that gets less pixelated the more incorrect guesses you make. I'm nice so I give you hints."
   },
   {
     id: 3,

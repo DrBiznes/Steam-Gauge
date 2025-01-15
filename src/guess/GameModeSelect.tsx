@@ -145,7 +145,7 @@ export function GameModeSelect() {
         transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         className="title-highlight"
       >
-        Artfuscation Challenge
+        Choose your challenge
       </motion.h1>
       
       <motion.div
@@ -154,7 +154,7 @@ export function GameModeSelect() {
         transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
         className="subtitle-highlight"
       >
-        Can you identify these pixelated Steam games? Get more hints as you guess!
+        Identify pixelated Steam games covers. Get more hints as you guess!
       </motion.div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
