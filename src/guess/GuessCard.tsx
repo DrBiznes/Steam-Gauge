@@ -15,10 +15,10 @@ const pixelateImage = (
   const w = canvas.width
   const h = canvas.height
 
-  // Draw original image
+  // Draw original image first
   ctx.drawImage(image, 0, 0, w, h)
 
-  // Apply pixelation if needed
+  // Only apply pixelation if pixelSize > 1
   if (pixelSize > 1) {
     const scaledW = w / pixelSize
     const scaledHeight = h / pixelSize
@@ -69,6 +69,7 @@ export function GuessCard({
   // Calculate pixel size based on pixelation level (1-6)
   // Level 1 = most pixelated (32px), Level 6 = original image (1px)
   const getPixelSize = (level: number) => {
+    if (revealed) return 1 // No pixelation when revealed
     return Math.max(1, 32 / level) // This gives us: 32, 16, 8, 4, 2, 1
   }
 
@@ -100,7 +101,7 @@ export function GuessCard({
 
     // Apply pixelation effect
     pixelateImage(ctx, imageRef.current, canvas, getPixelSize(pixelationLevel))
-  }, [imageLoaded, pixelationLevel])
+  }, [imageLoaded, pixelationLevel, revealed])
 
   if (!game) {
     return (
