@@ -31,6 +31,28 @@ export function GuessInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
+  // Always maintain focus on the input
+  useEffect(() => {
+    const focusInput = () => {
+      // Small delay to ensure focus after state updates
+      setTimeout(() => {
+        if (inputRef.current && !isRevealed) {
+          inputRef.current.focus()
+        }
+      }, 0)
+    }
+
+    // Focus initially
+    focusInput()
+
+    // Focus when window regains focus
+    window.addEventListener('focus', focusInput)
+
+    return () => {
+      window.removeEventListener('focus', focusInput)
+    }
+  }, [isRevealed, gamePool]) // Re-run when game changes or reveal state changes
+
   // Filter suggestions based on input
   useEffect(() => {
     if (!guess.trim()) {
@@ -59,10 +81,18 @@ export function GuessInput({
     await onSubmit(guess)
     setGuess("")
     setShowSuggestions(false)
-    inputRef.current?.focus()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Allow tab completion even when suggestions are not shown
+    if (e.key === 'Tab' && suggestions.length > 0) {
+      e.preventDefault()
+      setGuess(suggestions[0])
+      setShowSuggestions(false)
+      setSelectedIndex(-1)
+      return
+    }
+
     if (!showSuggestions) return
 
     switch (e.key) {
@@ -152,7 +182,6 @@ export function GuessInput({
                     onClick={() => {
                       setGuess(suggestion)
                       setShowSuggestions(false)
-                      inputRef.current?.focus()
                     }}
                   >
                     {suggestion}
