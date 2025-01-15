@@ -111,7 +111,7 @@ async function convertSteamSpyGame(game: SteamSpyGame): Promise<Game> {
     id: game.appid,
     steamId: game.appid,
     name: game.name,
-    coverUrl: `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`,
+    coverUrl: `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`,
     steamScore,
     owners: game.owners,
     averagePlayers2Weeks: game.average_2weeks,

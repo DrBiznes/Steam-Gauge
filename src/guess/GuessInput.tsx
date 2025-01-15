@@ -33,25 +33,22 @@ export function GuessInput({
 
   // Always maintain focus on the input
   useEffect(() => {
+    if (inputRef.current && !isRevealed) {
+      inputRef.current.focus()
+    }
+  }, [isRevealed, guess]) // Re-run when guess changes or reveal state changes
+
+  // Focus when window regains focus
+  useEffect(() => {
     const focusInput = () => {
-      // Small delay to ensure focus after state updates
-      setTimeout(() => {
-        if (inputRef.current && !isRevealed) {
-          inputRef.current.focus()
-        }
-      }, 0)
+      if (inputRef.current && !isRevealed) {
+        inputRef.current.focus()
+      }
     }
 
-    // Focus initially
-    focusInput()
-
-    // Focus when window regains focus
     window.addEventListener('focus', focusInput)
-
-    return () => {
-      window.removeEventListener('focus', focusInput)
-    }
-  }, [isRevealed, gamePool]) // Re-run when game changes or reveal state changes
+    return () => window.removeEventListener('focus', focusInput)
+  }, [isRevealed])
 
   // Filter suggestions based on input
   useEffect(() => {

@@ -1,10 +1,11 @@
 // src/guess/GuessCard.tsx
 
-import { useEffect, useState, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card } from "@/components/ui/card"
-import { Game } from "./types"
+import { Game, Hint } from "./types"
 import { motion, AnimatePresence } from "framer-motion"
 import "./guess.css"
+import { GuessHints } from "./GuessHints"
 
 // Utility function to pixelate image
 const pixelateImage = (
@@ -51,7 +52,7 @@ interface GuessCardProps {
   game: Game | null
   pixelationLevel: number
   revealed?: boolean
-  hints?: { type: string; text: string }[]
+  hints?: Hint[]
   onLoad?: () => void
 }
 
@@ -96,19 +97,16 @@ export function GuessCard({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size to match desired aspect ratio
-    canvas.width = 800
-    canvas.height = 343
+    // Set canvas size to match cover dimensions
+    canvas.width = 300
+    canvas.height = 450
 
     // Apply pixelation effect
     pixelateImage(ctx, imageRef.current, canvas, getPixelSize(pixelationLevel))
   }, [imageLoaded, pixelationLevel])
 
   const getPlaceholderImage = () => {
-    if (window.innerWidth <= 768) {
-      return 'https://placehold.co/400x225?text=No+Image'
-    }
-    return 'https://placehold.co/800x343?text=No+Image'
+    return 'https://placehold.co/600x900?text=No+Image'
   }
 
   if (!game) {
@@ -128,99 +126,85 @@ export function GuessCard({
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <Card className="guess-card-container">
-        {/* Image Container */}
-        <div className="guess-image-container">
-          {/* Hidden image for loading */}
-          <img
-            ref={imageRef}
-            key={game.id}
-            src={game.coverUrl}
-            alt="Game cover"
-            className="hidden"
-            onLoad={() => {
-              setImageLoaded(true)
-              setImageError(false)
-            }}
-            onError={(e) => {
-              setImageError(true)
-              setImageLoaded(true)
-              e.currentTarget.src = getPlaceholderImage()
-            }}
-          />
-          
-          {/* Canvas for pixelation effect */}
-          <AnimatePresence mode="wait">
-            <motion.canvas
-              key={game.id}
-              ref={canvasRef}
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: imageLoaded ? 1 : 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-            />
-          </AnimatePresence>
+        <div className="guess-content-wrapper">
+          {/* Hints Section */}
+          <GuessHints hints={hints} />
 
-          {/* Game Info Overlay */}
-          <AnimatePresence>
-            {revealed && (
-              <motion.div
-                className="reveal-overlay"
+          {/* Cover Image Section */}
+          <div className="guess-cover-container">
+            {/* Hidden image for loading */}
+            <img
+              ref={imageRef}
+              key={game.id}
+              src={game.coverUrl}
+              alt="Game cover"
+              className="hidden"
+              onLoad={() => {
+                setImageLoaded(true)
+                setImageError(false)
+              }}
+              onError={(e) => {
+                setImageError(true)
+                setImageLoaded(true)
+                e.currentTarget.src = getPlaceholderImage()
+              }}
+            />
+            
+            {/* Canvas for pixelation effect */}
+            <AnimatePresence mode="wait">
+              <motion.canvas
+                key={game.id}
+                ref={canvasRef}
+                className="game-cover"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: imageLoaded ? 1 : 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-              >
-                <motion.h2
-                  className="game-title"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  {game.name}
-                </motion.h2>
+              />
+            </AnimatePresence>
 
-                {game.steamScore !== undefined && (
-                  <motion.div
-                    className="game-stats"
+            {/* Game Info Overlay */}
+            <AnimatePresence>
+              {revealed && (
+                <motion.div
+                  className="reveal-overlay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <motion.h2
+                    className="game-title"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                   >
-                    <div className="steam-score">
-                      Steam Score: {game.steamScore}%
-                    </div>
-                    <div className="total-reviews">
-                      Total Reviews: {game.totalReviews?.toLocaleString()}
-                    </div>
-                    <div className="recent-players">
-                      Recent Players: {game.averagePlayers2Weeks.toLocaleString()}
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                    {game.name}
+                  </motion.h2>
 
-        {/* Hints Display */}
-        <AnimatePresence>
-          <motion.div className="hints-container">
-            {hints.map((hint, index) => (
-              <motion.div
-                key={`${hint.type}-${index}`}
-                className="hint-item"
-                style={{ backgroundColor: getHintBackground(index) }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {hint.text}
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+                  {game.steamScore !== undefined && (
+                    <motion.div
+                      className="game-stats"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="steam-score">
+                        Steam Score: {game.steamScore}%
+                      </div>
+                      <div className="total-reviews">
+                        Total Reviews: {game.totalReviews?.toLocaleString()}
+                      </div>
+                      <div className="recent-players">
+                        Recent Players: {game.averagePlayers2Weeks.toLocaleString()}
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
         {/* Pixelation Level Indicator */}
         <div className="pixelation-indicator">
