@@ -113,9 +113,11 @@ export function GuessPage() {
         </motion.div>
 
         {/* Game Content */}
-        <div className="flex flex-col items-center gap-8 w-full">
+        <div className="relative w-full flex flex-col items-center">
           {isLoading || !gameState?.currentGame ? (
-            <LoadingGauge />
+            <div className="absolute left-1/2 -translate-x-1/2 translate-y-1/4">
+              <LoadingGauge />
+            </div>
           ) : (
             <AnimatePresence mode="wait">
               <motion.div 
@@ -142,7 +144,7 @@ export function GuessPage() {
                 />
 
                 {/* Game Progress */}
-                <div className="flex justify-between items-center text-white/80 text-sm">
+                <div className="flex justify-between items-center gap-8 text-white/80 text-sm">
                   <div>Lives Remaining: {6 - gameState.pixelationLevel}/5</div>
                 </div>
 
