@@ -212,6 +212,12 @@
   margin: 2rem auto;
 }
 
+/* Remove border radius from input and buttons */
+.guess-input-container input,
+.guess-input-container button {
+  border-radius: 0 !important;
+}
+
 /* Scrollbar Styles */
 .hints-list::-webkit-scrollbar {
   width: 6px;

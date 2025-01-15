@@ -132,7 +132,7 @@ export function GuessInput({
   }, [])
 
   return (
-    <div className="w-full max-w-2xl space-y-6">
+    <div className="w-full max-w-2xl space-y-6 guess-input-container">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex gap-2 relative">
           <Input

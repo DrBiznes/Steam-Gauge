@@ -121,7 +121,7 @@ export function GuessPage() {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div 
-                className="w-full flex flex-col items-center gap-6"
+                className="w-full flex flex-col items-center gap-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -135,22 +135,24 @@ export function GuessPage() {
                 />
 
                 {/* Game Controls */}
-                <GuessInput
-                  onSubmit={handleSubmitGuess}
-                  onSkip={handleSkip}
-                  isSubmitting={isSubmitting}
-                  isRevealed={gameState.revealed}
-                  gamePool={currentModeState.gamePool}
-                />
+                <div className="-mt-7">
+                  <GuessInput
+                    onSubmit={handleSubmitGuess}
+                    onSkip={handleSkip}
+                    isSubmitting={isSubmitting}
+                    isRevealed={gameState.revealed}
+                    gamePool={currentModeState.gamePool}
+                  />
+                </div>
 
                 {/* Game Progress */}
-                <div className="flex justify-between items-center gap-8 text-white/80 text-sm">
+                <div className="flex justify-between items-center gap-8 text-white/80 text-sm mt-1">
                   <div>Lives Remaining: {6 - gameState.pixelationLevel}/5</div>
                 </div>
 
                 {/* Instructions */}
                 <motion.div
-                  className="text-center text-white/60 text-sm"
+                  className="text-center text-white/60 text-sm mt-1"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
