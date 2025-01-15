@@ -66,12 +66,22 @@ export function GuessCard({
   const [imageError, setImageError] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
+  const [currentGameId, setCurrentGameId] = useState<number | null>(null)
 
   // Calculate pixel size based on pixelation level (1-6)
   // Level 1 = most pixelated (32px), Level 6 = original image (1px)
   const getPixelSize = (level: number) => {
     return Math.max(1, 32 / level) // This gives us: 32, 16, 8, 4, 2, 1
   }
+
+  // Reset state when game changes
+  useEffect(() => {
+    if (game?.id !== currentGameId) {
+      setImageLoaded(false)
+      setImageError(false)
+      setCurrentGameId(game?.id || null)
+    }
+  }, [game?.id])
 
   useEffect(() => {
     if (game && onLoad) {
@@ -103,25 +113,15 @@ export function GuessCard({
 
   if (!game) {
     return (
-      <Card className="guess-card flex items-center justify-center text-muted-foreground">
+      <Card className="guess-card-container flex items-center justify-center text-muted-foreground">
         No game loaded
       </Card>
     )
   }
 
-  const getHintBackground = (index: number) => {
-    const colors = [
-      'rgba(59, 130, 246, 0.1)',  // blue
-      'rgba(16, 185, 129, 0.1)',  // green
-      'rgba(239, 68, 68, 0.1)',   // red
-      'rgba(245, 158, 11, 0.1)',  // yellow
-      'rgba(139, 92, 246, 0.1)'   // purple
-    ]
-    return colors[index % colors.length]
-  }
-
   return (
     <motion.div
+      key={game.id}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -133,21 +133,33 @@ export function GuessCard({
           {/* Hidden image for loading */}
           <img
             ref={imageRef}
+            key={game.id}
             src={game.coverUrl}
             alt="Game cover"
             className="hidden"
-            onLoad={() => setImageLoaded(true)}
+            onLoad={() => {
+              setImageLoaded(true)
+              setImageError(false)
+            }}
             onError={(e) => {
               setImageError(true)
+              setImageLoaded(true)
               e.currentTarget.src = getPlaceholderImage()
             }}
           />
           
           {/* Canvas for pixelation effect */}
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full object-cover"
-          />
+          <AnimatePresence mode="wait">
+            <motion.canvas
+              key={game.id}
+              ref={canvasRef}
+              className="w-full h-full object-cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: imageLoaded ? 1 : 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            />
+          </AnimatePresence>
 
           {/* Game Info Overlay */}
           <AnimatePresence>
@@ -222,4 +234,15 @@ export function GuessCard({
       </Card>
     </motion.div>
   )
+}
+
+function getHintBackground(index: number) {
+  const colors = [
+    'rgba(59, 130, 246, 0.1)',  // blue
+    'rgba(16, 185, 129, 0.1)',  // green
+    'rgba(239, 68, 68, 0.1)',   // red
+    'rgba(245, 158, 11, 0.1)',  // yellow
+    'rgba(139, 92, 246, 0.1)'   // purple
+  ]
+  return colors[index % colors.length]
 }

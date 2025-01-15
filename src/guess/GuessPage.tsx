@@ -6,10 +6,8 @@ import { useGuessStore } from "./store"
 import { GameModeSelect } from "./GameModeSelect"
 import { GameMode } from "./types"
 import { motion, AnimatePresence } from "framer-motion"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Lightbulb, SkipForward } from "lucide-react"
 import { GuessCard } from "./GuessCard"
+import { GuessInput } from "./GuessInput"
 import LoadingGauge from "./LoadingGauge"
 import "./guess.css"
 
@@ -31,7 +29,6 @@ const getPageTitle = (mode: GameMode | null, genre: string | null) => {
 export function GuessPage() {
   const { genre } = useParams()
   const location = useLocation()
-  const [guess, setGuess] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const { 
@@ -69,16 +66,12 @@ export function GuessPage() {
     }
   }, [location.pathname, currentMode, currentGenre, gameState])
 
-  const handleSubmitGuess = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!guess.trim() || isSubmitting) return
+  const handleSubmitGuess = async (guess: string) => {
+    if (isSubmitting) return
 
     setIsSubmitting(true)
     try {
-      const isCorrect = await makeGuess(guess)
-      if (isCorrect) {
-        setGuess("")
-      }
+      await makeGuess(guess)
     } finally {
       setIsSubmitting(false)
     }
@@ -89,7 +82,6 @@ export function GuessPage() {
     setIsSubmitting(true)
     try {
       await skipGame()
-      setGuess("")
     } finally {
       setIsSubmitting(false)
     }
@@ -141,67 +133,31 @@ export function GuessPage() {
                 />
 
                 {/* Game Controls */}
-                <div className="w-full max-w-2xl space-y-6">
-                  <form onSubmit={handleSubmitGuess} className="space-y-4">
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter game name..."
-                        value={guess}
-                        onChange={(e) => setGuess(e.target.value)}
-                        className="flex-1 bg-[#2F2F2F] text-white border-none"
-                        disabled={isSubmitting || gameState.revealed}
-                      />
-                      <Button 
-                        type="submit"
-                        className="bg-[#F74843] hover:bg-[#ff5a55] text-white"
-                        disabled={isSubmitting || gameState.revealed}
-                      >
-                        Guess
-                      </Button>
-                    </div>
-                    
-                    <div className="flex justify-center gap-4">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="bg-[#2F2F2F] text-white border-none hover:bg-[#404040]"
-                        onClick={revealHint}
-                        disabled={isSubmitting || gameState.revealed}
-                      >
-                        <Lightbulb className="w-4 h-4 mr-2" />
-                        Get Hint
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="bg-[#2F2F2F] text-white border-none hover:bg-[#404040]"
-                        onClick={handleSkip}
-                        disabled={isSubmitting}
-                      >
-                        <SkipForward className="w-4 h-4 mr-2" />
-                        Skip Game
-                      </Button>
-                    </div>
-                  </form>
+                <GuessInput
+                  onSubmit={handleSubmitGuess}
+                  onSkip={handleSkip}
+                  onHint={revealHint}
+                  isSubmitting={isSubmitting}
+                  isRevealed={gameState.revealed}
+                  gamePool={currentModeState.gamePool}
+                />
 
-                  {/* Game Progress */}
-                  <div className="flex justify-between items-center text-white/80 text-sm">
-                    <div>Pixelation Level: {gameState.pixelationLevel}/6</div>
-                    <div>Hints Used: {gameState.hints.length}</div>
-                  </div>
-
-                  {/* Instructions */}
-                  <motion.div
-                    className="text-center text-white/60 text-sm"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    <p>Wrong guesses will reduce pixelation and reveal hints</p>
-                    <p>Skip or incorrect final guess will reset your score</p>
-                  </motion.div>
+                {/* Game Progress */}
+                <div className="flex justify-between items-center text-white/80 text-sm">
+                  <div>Pixelation Level: {gameState.pixelationLevel}/6</div>
+                  <div>Hints Used: {gameState.hints.length}</div>
                 </div>
+
+                {/* Instructions */}
+                <motion.div
+                  className="text-center text-white/60 text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <p>Wrong guesses will reduce pixelation and reveal hints</p>
+                  <p>Skip or incorrect final guess will reset your score</p>
+                </motion.div>
               </motion.div>
             </AnimatePresence>
           )}

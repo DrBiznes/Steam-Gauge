@@ -140,6 +140,7 @@ export const useGuessStore = create<GuessStore>()(
             })
           }
 
+          // First reveal the current game
           set(state => ({
             gameModeStates: {
               ...state.gameModeStates,
@@ -161,12 +162,16 @@ export const useGuessStore = create<GuessStore>()(
           // Get next game
           const nextGame = engine.selectNewGame()
           
+          // Then transition to the next game with updated state
           set(state => ({
             gameModeStates: {
               ...state.gameModeStates,
               [modeKey]: {
                 ...modeState,
+                gamePool: modeState.gamePool,
                 usedGameIds: engine.usedGameIds,
+                currentScore: newScore,
+                highScore: newHighScore,
                 currentState: {
                   currentGame: nextGame,
                   pixelationLevel: 1,
@@ -193,19 +198,73 @@ export const useGuessStore = create<GuessStore>()(
             ? [...currentState.hints, newHint]
             : currentState.hints
 
-          set(state => ({
-            gameModeStates: {
-              ...state.gameModeStates,
-              [modeKey]: {
-                ...modeState,
-                currentState: {
-                  ...currentState,
-                  pixelationLevel: newPixelationLevel,
-                  hints: updatedHints
+          // Check if this was the last guess
+          const isLastGuess = newPixelationLevel === 6
+
+          if (isLastGuess) {
+            // First reveal the current game
+            set(state => ({
+              gameModeStates: {
+                ...state.gameModeStates,
+                [modeKey]: {
+                  ...modeState,
+                  currentScore: 0,
+                  currentState: {
+                    ...currentState,
+                    pixelationLevel: newPixelationLevel,
+                    hints: updatedHints,
+                    revealed: true
+                  }
                 }
               }
-            }
-          }))
+            }))
+
+            toast({
+              title: 'Game Over!',
+              description: `The game was: ${currentState.currentGame?.name}. Your score has been reset.`
+            })
+
+            // Wait for reveal animation
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            
+            // Get next game
+            const nextGame = engine.selectNewGame()
+            
+            // Then transition to the next game
+            set(state => ({
+              gameModeStates: {
+                ...state.gameModeStates,
+                [modeKey]: {
+                  ...modeState,
+                  usedGameIds: engine.usedGameIds,
+                  currentScore: 0,
+                  currentState: {
+                    currentGame: nextGame,
+                    pixelationLevel: 1,
+                    hints: [],
+                    revealed: false,
+                    isLoading: false,
+                    hasError: false
+                  }
+                }
+              }
+            }))
+          } else {
+            // Just update pixelation and hints for non-final guesses
+            set(state => ({
+              gameModeStates: {
+                ...state.gameModeStates,
+                [modeKey]: {
+                  ...modeState,
+                  currentState: {
+                    ...currentState,
+                    pixelationLevel: newPixelationLevel,
+                    hints: updatedHints
+                  }
+                }
+              }
+            }))
+          }
 
           return false
         }
