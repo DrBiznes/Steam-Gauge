@@ -131,4 +131,12 @@
   .bg-gauge {
     background-image: url('./assets/gaugebg.jpg');
   }
+
+  .bg-artfuscation {
+    background-image: url('./assets/artfuscationbg.jpg');
+  }
+
+  .bg-about {
+    background-image: url('./assets/aboutbg.jpg');
+  }
 }

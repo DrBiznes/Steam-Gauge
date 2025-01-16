@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom"
 import { useGuessStore } from "./store"
 import { GameMode } from "./types"
-import { Eye, Trophy, Gamepad2, Clock } from "lucide-react"
+import { Eye, Trophy, Gamepad2, Clock, Filter } from "lucide-react"
 import Marquee from "react-fast-marquee"
 import { motion } from "framer-motion"
 import "./guess.css"
@@ -159,8 +159,8 @@ export function GameModeSelect() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ModeCard
-          title="Recent Releases"
-          description="Test your knowledge of the latest Steam hits"
+          title="Top 100 Recent"
+          description="The most played games from the last two weeks"
           icon={<Clock className="w-6 h-6" />}
           mode="top100in2weeks"
           variant="recent"
@@ -170,8 +170,8 @@ export function GameModeSelect() {
         />
         
         <ModeCard
-          title="Classic Games"
-          description="How well do you know gaming history?"
+          title="All-Time Top 100"
+          description="The most played games since 2009?"
           icon={<Trophy className="w-6 h-6" />}
           mode="top100forever"
           variant="alltime"
@@ -206,7 +206,7 @@ export function GameModeSelect() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Eye className="w-6 h-6" />
+                  <Gamepad2 className="w-6 h-6" />
                 </motion.div>
               </div>
               <CardDescription className="card-description">

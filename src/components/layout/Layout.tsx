@@ -18,6 +18,12 @@ export function Layout({ children }: LayoutProps) {
     if (path.startsWith('/gauge')) {
       return 'bg-gauge'
     }
+    if (path.startsWith('/artfuscation')) {
+      return 'bg-artfuscation'
+    }
+    if (path.startsWith('/about')) {
+      return 'bg-about'
+    }
 
     switch (path) {
       case '/':
