@@ -64,7 +64,7 @@ export function TableOfContents() {
 
   return (
     <nav className="sticky top-8">
-      <h4 className="text-4xl font-black font-sans text-foreground mb-6 bg-[#168f48]/10 px-4 py-2 rounded-lg">
+      <h4 className="text-4xl font-black font-sans text-foreground mb-6 bg-[#168f48] text-white px-4 py-2">
         Contents
       </h4>
       <Separator className="mb-8" />

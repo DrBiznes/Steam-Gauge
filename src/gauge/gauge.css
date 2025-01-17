@@ -380,7 +380,7 @@
   display: inline-block;
 }
 
-.game-mode-select h1.title-highlight {
+.game-mode-select h1.gauge-title-highlight {
   background: #F74843;
   padding: 0.5rem 2rem;
   text-shadow: none;

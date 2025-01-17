@@ -61,9 +61,16 @@ export function Header() {
       return 'bg-[#9333ea] hover:bg-[#7c3aed]'
     }
     if (segment === 'genre') {
-      return isArtfuscation ? 'bg-[#9333ea] hover:bg-[#7c3aed]' : 
-             isGauge ? 'bg-[#F74843] hover:bg-[#ff5a55]' :
+      return (isArtfuscation || isGauge) ? 'bg-[#059669] hover:bg-[#10b981]' :
              'bg-[#168f48] hover:bg-[#1ba558]'
+    }
+    if (segment === 'top100in2weeks') {
+      return (isArtfuscation || isGauge) ? 'bg-[#2563eb] hover:bg-[#3b82f6]' :
+             'bg-[#2F2F2F] hover:bg-[#404040]'
+    }
+    if (segment === 'top100forever') {
+      return (isArtfuscation || isGauge) ? 'bg-[#dc2626] hover:bg-[#ef4444]' :
+             'bg-[#2F2F2F] hover:bg-[#404040]'
     }
     return 'bg-[#2F2F2F] hover:bg-[#404040]'
   }

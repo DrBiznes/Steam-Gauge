@@ -30,7 +30,7 @@ export function Note({ number, children }: NoteProps) {
       innerContent.className = 'flex items-start gap-3';
       
       const numberSpan = document.createElement('span');
-      numberSpan.className = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-primary/10 text-primary border border-primary/20";
+      numberSpan.className = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-white/20 text-white border border-white/30";
       numberSpan.textContent = number.toString();
       
       const textContent = document.createElement('div');
@@ -81,7 +81,7 @@ export function Note({ number, children }: NoteProps) {
     }
   }, [number, children]);
 
-  const numberIndicatorClass = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-primary/10 text-primary rounded-full border border-primary/20";
+  const numberIndicatorClass = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-primary text-primary-foreground rounded-full border border-primary/50";
 
   return (
     <span 

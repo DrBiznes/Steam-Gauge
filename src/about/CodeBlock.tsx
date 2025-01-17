@@ -45,9 +45,9 @@ export function CodeBlock({
             transition={{ duration: 0.2 }}
             className="mt-2"
           >
-            <div className="rounded-lg border border-[#168f48]/20 overflow-hidden">
+            <div className="border border-[#168f48]/20 overflow-hidden">
               <Highlight
-                theme={themes.dracula}
+                theme={themes.github}
                 code={code}
                 language={language}
               >

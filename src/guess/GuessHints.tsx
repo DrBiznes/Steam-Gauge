@@ -66,12 +66,13 @@ export function GuessHints({ hints }: GuessHintsProps) {
             <motion.div
               key={`${hint.type}-${index}`}
               className={getHintClass(hint)}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, height: 0, scale: 0.95 }}
+              animate={{ opacity: 1, height: "auto", scale: 1 }}
+              exit={{ opacity: 0, height: 0, scale: 0.95 }}
               transition={{ 
-                duration: 0.4,
-                delay: index * 0.1 
+                duration: 0.3,
+                delay: index * 0.05,
+                ease: "easeOut"
               }}
             >
               {hint.revealed ? (

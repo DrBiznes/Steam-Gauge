@@ -140,7 +140,7 @@ export function GameModeSelect() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-        className="title-highlight"
+        className="gauge-title-highlight"
       >
         Choose Your Challenge
       </motion.h1>
