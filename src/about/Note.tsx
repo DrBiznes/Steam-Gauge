@@ -30,7 +30,7 @@ export function Note({ number, children }: NoteProps) {
       innerContent.className = 'flex items-start gap-3';
       
       const numberSpan = document.createElement('span');
-      numberSpan.className = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-white/20 text-white border border-white/30";
+      numberSpan.className = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-jetbrains bg-white/20 text-white border border-white/30";
       numberSpan.textContent = number.toString();
       
       const textContent = document.createElement('div');
@@ -81,15 +81,32 @@ export function Note({ number, children }: NoteProps) {
     }
   }, [number, children]);
 
-  const numberIndicatorClass = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-sans bg-primary text-primary-foreground rounded-full border border-primary/50";
+  const numberIndicatorClass = "inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-jetbrains bg-primary text-primary-foreground border border-primary/50";
 
   return (
-    <span 
-      ref={triggerRef}
-      data-note-trigger={number}
-      className={cn(numberIndicatorClass, "cursor-help align-text-top -mt-1")}
-    >
-      {number}
-    </span>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <span 
+          ref={triggerRef}
+          data-note-trigger={number}
+          className={cn(numberIndicatorClass, "cursor-help align-text-top -mt-1")}
+        >
+          {number}
+        </span>
+      </HoverCardTrigger>
+      <HoverCardContent 
+        className="w-80 md:hidden" 
+        align="start"
+      >
+        <div className="flex items-start gap-3">
+          <span className="inline-flex items-center justify-center px-2 h-[1.4em] text-sm font-jetbrains bg-primary/20">
+            {number}
+          </span>
+          <div className="flex-1 text-sm leading-relaxed">
+            {children}
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 } 
