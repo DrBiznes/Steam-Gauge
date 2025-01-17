@@ -20,7 +20,7 @@ const GAMES = [
     id: 3,
     name: "About",
     path: "/about",
-    description: "Learn more about our Steam tools project, its development, and the technology behind it. Find out how we use the Steam API to bring you these unique gaming experiences."
+    description: "Learn about how this project was built, the technology behind it, and how we use the Steam API to create these unique gaming experiences."
   },
 ]
 

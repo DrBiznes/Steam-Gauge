@@ -4,7 +4,8 @@ import { Layout } from "@/components/layout/Layout"
 import { Routes, Route } from "react-router-dom"
 import { Home } from "@/home/Home"
 import { GaugePage } from "@/gauge/GaugePage"
-import { GuessPage } from "@/guess/GuessPage"  // Add this import
+import { GuessPage } from "@/guess/GuessPage"
+import { About } from "@/about/AboutPage"
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
           <Route path="top100forever" element={<GuessPage />} />
           <Route path="genre/:genre" element={<GuessPage />} />
         </Route>
-        <Route path="/about" element={<div>About Page</div>} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Layout>
   )

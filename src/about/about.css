@@ -1,0 +1,228 @@
+/* About Page Styling */
+.prose {
+  max-width: none;
+  width: 100%;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Typography */
+.prose p, 
+.prose li, 
+.prose strong, 
+.prose em {
+  color: hsl(var(--foreground));
+  line-height: 1.8;
+  font-size: 1.125rem;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 900;
+  color: hsl(var(--foreground));
+  line-height: 1.2;
+  scroll-margin-top: 2rem;
+}
+
+.prose h1 {
+  font-size: 3.5rem !important;
+  margin-bottom: 2rem !important;
+  background: hsl(var(--primary) / 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.prose h2 {
+  font-size: 2.75rem !important;
+  margin-top: 4rem !important;
+  margin-bottom: 2rem !important;
+  background: hsl(var(--primary) / 0.1);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+}
+
+.prose h3 {
+  font-size: 2.25rem !important;
+  margin-top: 3rem !important;
+  margin-bottom: 1.5rem !important;
+  background: hsl(var(--primary) / 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Links */
+.prose a {
+  color: hsl(var(--primary)) !important;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: all 0.2s ease;
+}
+
+.prose a:hover {
+  color: hsl(var(--primary) / 0.8) !important;
+}
+
+/* Code Blocks */
+.prose code {
+  color: hsl(var(--primary)) !important;
+  background: hsl(var(--muted));
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Lists */
+.prose ul,
+.prose ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prose ul li::marker {
+  color: hsl(var(--primary)) !important;
+}
+
+.prose ol li::marker {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Blockquotes */
+.prose blockquote {
+  border-left: 4px solid hsl(var(--primary) / 0.5);
+  padding-left: 1rem;
+  color: hsl(var(--muted-foreground)) !important;
+  font-style: italic;
+  margin: 2rem 0;
+}
+
+/* Note Component Styles */
+.note-content {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.note-content[data-note].active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.note-content > div {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(20px);
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.1);
+}
+
+.note-content.active > div {
+  transform: translateX(0);
+}
+
+/* Table of Contents */
+.toc-container {
+  position: sticky;
+  top: 2rem;
+  height: calc(100vh - 4rem);
+  overflow-y: auto;
+  padding-right: 1rem;
+  scrollbar-gutter: stable;
+}
+
+.toc-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toc-container::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.toc-container::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 3px;
+}
+
+.toc-container::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
+/* Images */
+.prose img {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px hsl(var(--card) / 0.5);
+  margin: 2rem 0;
+}
+
+.prose figure {
+  margin: 2rem 0;
+}
+
+.prose figcaption {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .prose h1 {
+    font-size: 2.5rem !important;
+    padding: 1rem;
+  }
+
+  .prose h2 {
+    font-size: 2rem !important;
+    padding: 1rem;
+  }
+
+  .prose h3 {
+    font-size: 1.75rem !important;
+    padding: 0.75rem;
+  }
+
+  .prose p, 
+  .prose li {
+    font-size: 1rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prose > * {
+  animation: fadeIn 0.5s ease-out forwards;
+} 
