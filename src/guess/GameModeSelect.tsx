@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom"
 import { useGuessStore } from "./store"
 import { GameMode } from "./types"
-import { Eye, Trophy, Gamepad2, Clock, Filter } from "lucide-react"
+import { Trophy, Gamepad2, Clock } from "lucide-react"
 import Marquee from "react-fast-marquee"
 import { motion } from "framer-motion"
 import "./guess.css"

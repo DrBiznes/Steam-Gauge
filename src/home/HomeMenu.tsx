@@ -24,7 +24,7 @@ const GAMES = [
     id: 3,
     name: "About",
     path: "/about",
-    description: "Learn about how this project was built, the technology behind it, and how we use the Steam API to create these unique gaming experiences.",
+    description: "Learn about how this project was built, the technology behind it, and how I used the Steam API to create these gaming games.",
     color: "#168f48",
     hoverColor: "#1ba558"
   },
@@ -66,7 +66,7 @@ export function GameList() {
       >
         <h4 className="font-black text-4xl">Gaming is Good</h4>
         <p className="text-lg font-medium text-white/90 leading-relaxed -mt-2">
-          Gaming is so good I made a bunch of games about gaming. The first one is about Steam reviews. The other one is about cover art. You can play them here.
+          Gaming is so good I made a couple of games about gaming. The first one is about Steam reviews. The other one is about cover art. You can play them here.
         </p>
       </motion.div>
       
