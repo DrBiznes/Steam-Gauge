@@ -64,7 +64,7 @@ export function TableOfContents() {
 
   return (
     <nav className="sticky top-8">
-      <h4 className="text-4xl font-black font-sans text-foreground mb-6 bg-primary/10 px-4 py-2 rounded-lg">
+      <h4 className="text-4xl font-black font-sans text-foreground mb-6 bg-[#168f48]/10 px-4 py-2 rounded-lg">
         Contents
       </h4>
       <Separator className="mb-8" />
@@ -74,18 +74,18 @@ export function TableOfContents() {
             <li key={section.id}>
               <a
                 href={section.id === 'steam-gauge' ? '#' : `#${section.id}`}
-                className="block font-sans text-xl font-medium text-foreground hover:text-primary transition-colors"
+                className="block font-sans text-xl font-medium text-foreground hover:text-[#168f48] transition-colors"
                 onClick={handleSectionClick(section.id)}
               >
                 {section.text}
               </a>
               {section.subsections && (
-                <ul className="ml-4 mt-4 space-y-3 border-l-2 border-border/50 pl-4">
+                <ul className="ml-4 mt-4 space-y-3 border-l-2 border-[#168f48]/20 pl-4">
                   {section.subsections.map((subsection) => (
                     <li key={subsection.id}>
                       <a
                         href={`#${subsection.id}`}
-                        className="block font-sans text-lg text-muted-foreground hover:text-primary transition-colors"
+                        className="block font-sans text-lg text-muted-foreground hover:text-[#168f48] transition-colors"
                         onClick={handleSectionClick(subsection.id)}
                       >
                         {subsection.text}

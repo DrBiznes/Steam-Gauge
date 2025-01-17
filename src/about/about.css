@@ -43,8 +43,8 @@
 .note-content > div {
   position: sticky;
   top: 4rem;
-  background-color: hsl(var(--primary)/0.15);
-  border: 1px solid hsl(var(--primary)/0.3);
+  background-color: rgba(22, 143, 72, 0.15);
+  border: 1px solid rgba(22, 143, 72, 0.3);
   padding: 1rem;
   color: white;
 }
@@ -62,7 +62,6 @@
   font-size: 3rem;
   font-weight: 900;
   margin-bottom: 2rem;
-  color: hsl(var(--foreground));
   display: inline-block;
   background: #168f48;
   padding: 0.5rem 1rem;
@@ -75,9 +74,9 @@
   font-weight: 800;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  color: rgb(247, 72, 67);
+  color: #168f48;
   display: inline-block;
-  background: rgba(247, 72, 67, 0.1);
+  background: rgba(22, 143, 72, 0.1);
   padding: 0.5rem 1rem;
   margin-left: -1rem;
 }
@@ -87,9 +86,9 @@
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  color: rgb(247, 72, 67);
+  color: #168f48;
   display: inline-block;
-  background: rgba(247, 72, 67, 0.05);
+  background: rgba(22, 143, 72, 0.05);
   padding: 0.25rem 0.75rem;
   margin-left: -0.75rem;
 }

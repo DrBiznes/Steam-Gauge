@@ -67,7 +67,11 @@ module.exports = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+  		fontFamily: {
+  			sans: ['DM Sans', 'sans-serif'],
+  			jetbrains: ['JetBrains Mono', 'monospace'],
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
