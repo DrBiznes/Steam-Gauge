@@ -12,14 +12,14 @@
 }
 
 .menu-button:hover {
-  background: rgba(247, 72, 67, 0.9);
+  background: var(--menu-hover-color);
   border-radius: 0 !important;
 }
 
 .menu-title {
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 900;
-  color: rgb(247, 72, 67);
+  color: var(--menu-color);
   line-height: 1.1;
   text-align: left;
   width: 100%;
@@ -33,6 +33,10 @@
   max-width: 32rem;
 }
 
+.menu-button:hover .menu-title {
+  color: white;
+}
+
 .menu-header {
   margin-bottom: 12rem;
   padding: 0 4rem;
@@ -40,6 +44,54 @@
 
 .menu-header h4 {
   margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #F74843,
+    #9333ea,
+    #168f48,
+    #F74843
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: glow 4s ease infinite;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.menu-header h4:hover {
+  animation: colorShift 2s linear infinite;
+  text-shadow: 
+    0 0 10px rgba(247, 72, 67, 0.5),
+    0 0 20px rgba(147, 51, 234, 0.3),
+    0 0 30px rgba(22, 143, 72, 0.2);
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 
+      0 0 15px rgba(247, 72, 67, 0.3),
+      0 0 30px rgba(147, 51, 234, 0.2),
+      0 0 45px rgba(22, 143, 72, 0.1);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(247, 72, 67, 0.4),
+      0 0 40px rgba(147, 51, 234, 0.3),
+      0 0 60px rgba(22, 143, 72, 0.2);
+  }
+}
+
+@keyframes colorShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
 }
 
 .menu-header p {
@@ -67,14 +119,6 @@
 .menu-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
-}
-
-.menu-item:hover .menu-title {
-  color: white;
-}
-
-.menu-item:hover .menu-description {
-  color: white;
 }
 
 @media (max-width: 768px) {

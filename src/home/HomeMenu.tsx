@@ -8,19 +8,25 @@ const GAMES = [
     id: 1,
     name: "Gauge-ing Game",
     path: "/gauge",
-    description: "I love games but some people don't, they leave mean reviews on Steam to let the developers know. Guess which game has fewer mean reviews."
+    description: "I love games but some people don't, they leave mean reviews on Steam to let the developers know. Guess which game has fewer mean reviews.",
+    color: "#F74843",
+    hoverColor: "#ff5a55"
   },
   {
     id: 2,
     name: "Cover Artfuscation",
     path: "/artfuscation",
-    description: "Kinda like framed but with cover art that gets less pixelated the more incorrect guesses you make. I'm nice so I give you hints."
+    description: "Kinda like framed but with cover art that gets less pixelated the more incorrect guesses you make. I'm nice so I give you hints.",
+    color: "#9333ea",
+    hoverColor: "#7c3aed"
   },
   {
     id: 3,
     name: "About",
     path: "/about",
-    description: "Learn about how this project was built, the technology behind it, and how we use the Steam API to create these unique gaming experiences."
+    description: "Learn about how this project was built, the technology behind it, and how we use the Steam API to create these unique gaming experiences.",
+    color: "#168f48",
+    hoverColor: "#1ba558"
   },
 ]
 
@@ -58,8 +64,8 @@ export function GameList() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h4 className="font-black text-4xl text-[#F74843]">Gaming is Good</h4>
-        <p className="text-lg font-medium text-white/90 leading-relaxed mt-4">
+        <h4 className="font-black text-4xl">Gaming is Good</h4>
+        <p className="text-lg font-medium text-white/90 leading-relaxed -mt-2">
           Gaming is so good I made a bunch of games about gaming. The first one is about Steam reviews. The other one is about cover art. You can play them here.
         </p>
       </motion.div>
@@ -82,6 +88,10 @@ export function GameList() {
               variant="ghost"
               className="menu-button"
               onClick={() => navigate(game.path)}
+              style={{
+                '--menu-color': game.color,
+                '--menu-hover-color': game.hoverColor
+              } as React.CSSProperties}
             >
               <h3 className="menu-title">
                 {game.name}

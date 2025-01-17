@@ -51,20 +51,19 @@ export function Header() {
     const isGauge = path[0] === 'gauge'
 
     // Base styles for different segments
-    if (segment === 'top100in2weeks') {
-      return 'bg-[#2563eb] hover:bg-[#1d4ed8]'
-    }
-    if (segment === 'top100forever') {
-      return 'bg-[#dc2626] hover:bg-[#b91c1c]'
-    }
-    if (segment === 'genre') {
-      return 'bg-[#059669] hover:bg-[#047857]'
+    if (segment === 'about') {
+      return 'bg-[#168f48] hover:bg-[#1ba558]'
     }
     if (segment === 'gauge') {
       return 'bg-[#F74843] hover:bg-[#ff5a55]'
     }
     if (segment === 'artfuscation') {
-      return 'bg-[#9333ea] hover:bg-[#7c3aed]'  // Purple for artfuscation
+      return 'bg-[#9333ea] hover:bg-[#7c3aed]'
+    }
+    if (segment === 'genre') {
+      return isArtfuscation ? 'bg-[#9333ea] hover:bg-[#7c3aed]' : 
+             isGauge ? 'bg-[#F74843] hover:bg-[#ff5a55]' :
+             'bg-[#168f48] hover:bg-[#1ba558]'
     }
     return 'bg-[#2F2F2F] hover:bg-[#404040]'
   }
@@ -91,7 +90,7 @@ export function Header() {
               <BreadcrumbLink asChild>
                 <Link 
                   to="/"
-                  className={`bg-[#F74843] hover:bg-[#ff5a55] text-white transition-colors px-4 py-2 leading-none`}
+                  className="bg-[#2F2F2F] hover:bg-[#404040] text-white transition-colors px-4 py-2 leading-none"
                 >
                   Steam-Gauge
                 </Link>

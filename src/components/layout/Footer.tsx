@@ -14,7 +14,7 @@ export function Footer({ className, ...props }: HTMLMotionProps<"footer">) {
         damping: 20,
         mass: 0.5
       }}
-      className={cn("bg-[#F74843] py-6 mt-auto", className)} 
+      className={cn("bg-[#2e2f31] py-6 mt-auto", className)} 
       {...props}
     >
       <div className="container flex flex-col items-center gap-4">
