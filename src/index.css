@@ -140,3 +140,16 @@
     background-image: url('./assets/aboutbg.jpg');
   }
 }
+
+/* CodeBlock hover glow effect */
+.text-glow {
+  text-shadow: 0 0 10px rgba(232, 160, 171, 0.5),
+               0 0 20px rgba(232, 160, 171, 0.3),
+               0 0 30px rgba(232, 160, 171, 0.2);
+}
+
+.group:hover .group-hover\:text-glow {
+  text-shadow: 0 0 10px rgba(232, 160, 171, 0.5),
+               0 0 20px rgba(232, 160, 171, 0.3),
+               0 0 30px rgba(232, 160, 171, 0.2);
+}
