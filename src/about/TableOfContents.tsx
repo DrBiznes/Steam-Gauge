@@ -28,7 +28,7 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
         { id: 'cover-artfuscation', text: 'Cover Artfuscation' }
       ]
     },
-    { id: 'tech-stack', text: 'Tech Stack' },
+    { id: 'design', text: 'Design' },
     { id: 'acknowledgments', text: 'Acknowledgments' }
   ];
 

@@ -20,7 +20,7 @@ export function Footer({ className, ...props }: HTMLMotionProps<"footer">) {
       <div className="container flex flex-col items-center gap-4">
         <div className="flex gap-4">
           <a
-            href="https://github.com/DrBiznes"
+            href="https://github.com/DrBiznes/Steam-Gauge"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(

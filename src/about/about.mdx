@@ -52,7 +52,7 @@ Dead simple when ye break it doon like that. The code's just asking nicely for t
 
 ### Zustand
 
-Right, let's talk about how I keep track of everything. I'm using this wee thing called Zustand - pure magic for keeping all yer data in order. <Note number={3}>Proper simple tae use but mighty powerful under the hood, like a souped-up Vauxhall Corsa.</Note>
+Right, let's talk about how I keep track of everything. I'm using this wee thing called [Zustand](https://zustand.docs.pmnd.rs/) - pure magic for keeping all yer data in order. <Note number={3}>Proper simple tae use but mighty powerful under the hood, like a souped-up Vauxhall Corsa.</Note>
 
 Think of it like the big score board at Hampden Park it keeps track of who's winning, who's playing, and what's happening in the game. Let me show you what my setup looks like under the bonnet:
 
@@ -176,13 +176,14 @@ I use the Canvas API to pixelate the images. Magic is whats it is
 
 Pure poetry in motion, that code. Takes yer pristine image, chops it up intae wee squares, then puts it back together like a jigsaw puzzle that's had a few too many pieces enlarged. Each time ye guess wrong, I make those squares a bit smaller, and the picture gets that wee bit clearer. It's like when yer granny's trying tae tune in the telly, except I'm doing it with purpose, ken?
 
-## Tech Stack
+## Design
 
-Right, let me tell ye about what makes this hing tick. We've got [React](https://react.dev) and [TypeScript](https://typescriptlang.org) doing the heavy lifting, with [Tailwind CSS](https://tailwindcss.com) making everything look proper smart. [Framer Motion](https://framer.com/motion) keeps it all moving smooth-like, while [Zustand](https://github.com/pmndrs/zustand) keeps track of everything like a well-organized bookie. Topped it off with [React Query](https://tanstack.com/query) tae handle all our API shenanigans.
+Right, let me tell ye about the fancy bits that make this hing look proper smart. We've got [shadcn/ui](https://ui.shadcn.com/) doing most of the heavy lifting for the buttons and whatnot. Pure class components, if ye ask me. [Motion](https://motion.dev/) keeps everything moving smooth as butter, while [Tailwind CSS](https://tailwindcss.com) makes sure it's all looking sharp as a tack.
 
+For all the wee icons scattered about, we're using [Lucide](https://lucide.dev/). Proper tidy they are. And the text? That's all set in [DM Sans](https://fonts.google.com/specimen/DM_Sans). Makes everything dead easy tae read, like yer granny's large print Reader's Digest.
 
 ## Acknowledgments
 
-Listen, we couldnae have done any of this without a few crucial bits and bobs. First off, big thanks tae [Valve](https://www.valvesoftware.com/) for the Steam platform and their APIs - without them we'd just be staring at an empty screen like it was the last train home. Pure grateful to the [SteamSpy](https://steamspy.com/) team an' all - their data's been more reliable than a Glasgow taxi driver in the rain.
+Listen, we couldnae have done any of this without a few crucial bits and bobs. First off, big thanks tae [Valve](https://www.valvesoftware.com/) for the Steam platform and their APIs. Without them we'd just be staring at an empty screen like it was the last train home. Pure grateful to Kyle Orland who maintains [SteamSpy](https://steamspy.com/). Their data's been more reliable than a Glasgow taxi driver in the rain.
 
 And we cannae forget the folks at [AllOrigins](https://allorigins.win/) <Note number={6}>I'm no entirely sure if using a CORS proxy is the right way to go about this, but it's working for now. If you're from Valve or AllOrigins reading this and you're no happy about it, just give us a shout and we'll sort something else out.</Note> without their proxy service, we'd be stuck trying tae get these APIs talking to each other like trying tae arrange a night out in a WhatsApp group. Never happening, but they sorted it right out. 
