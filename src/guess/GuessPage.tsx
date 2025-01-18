@@ -36,7 +36,6 @@ export function GuessPage() {
     gameModeStates,
     setGameMode,
     makeGuess,
-    revealHint,
     skipGame,
     loadInitialGames
   } = useGuessStore()

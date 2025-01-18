@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Separator } from '@/components/ui/separator';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface TableOfContentsProps {
   contentRef: React.RefObject<HTMLDivElement>;
 }
 
 export function TableOfContents({ contentRef }: TableOfContentsProps) {
-  const location = useLocation();
   const navigate = useNavigate();
   
   const sections = [

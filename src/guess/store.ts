@@ -8,7 +8,6 @@ import {
   GameModeStates, 
   GameState, 
   Game,
-  Hint,
   PixelationLevel
 } from './types'
 import { GuessEngine } from './engine/guessEngine'

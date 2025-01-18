@@ -6,7 +6,6 @@ import { SkipForward } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Game } from "./types"
 import { cn } from "@/lib/utils"
-import { useNavigate } from "react-router-dom"
 
 interface GuessInputProps {
   onSubmit: (guess: string) => Promise<void>
