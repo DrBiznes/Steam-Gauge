@@ -46,11 +46,22 @@
 }
 
 @media (max-width: 768px) {
+  .home-content {
+    padding: 1rem;
+    flex-direction: column;
+  }
+
   .content-glass {
     max-width: 100%;
+    padding: 1rem;
   }
   
   .carousel-container {
     display: none;
+  }
+
+  .home-container {
+    min-height: calc(100vh - 64px);
+    padding-bottom: 2rem;
   }
 }
