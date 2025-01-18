@@ -1,5 +1,3 @@
-// src/App.tsx
-
 import { Layout } from "@/components/layout/Layout"
 import { Routes, Route } from "react-router-dom"
 import { Home } from "@/home/Home"

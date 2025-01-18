@@ -1,5 +1,3 @@
-// src/guess/engine/guessEngine.ts
-
 import { Game } from '../types'
 
 export class GuessEngine {

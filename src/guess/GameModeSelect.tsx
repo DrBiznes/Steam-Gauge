@@ -210,7 +210,7 @@ export function GameModeSelect() {
                 </motion.div>
               </div>
               <CardDescription className="card-description">
-                Test your genre expertise
+              Games from your favorite genre
               </CardDescription>
             </CardHeader>
             <CardContent>

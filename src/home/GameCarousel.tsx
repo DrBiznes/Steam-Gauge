@@ -64,8 +64,8 @@ export const POPULAR_GAMES_2: Game[] = [
   },
   {
     id: 10,
-    title: "Grand Theft Auto V",
-    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/library_600x900.jpg"
+    title: "Papers, Please",
+    coverUrl: "https://cdn.cloudflare.steamstatic.com/steam/apps/239030/library_600x900.jpg"
   }
 ]
 
