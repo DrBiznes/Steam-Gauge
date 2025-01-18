@@ -2,11 +2,11 @@ import { Note } from '../about/Note';
 import { CodeBlock } from '../about/CodeBlock';
 import { useState } from 'react';
 
-# About Steam Gauge!
+# About Steam Gauge
 
 I made two games.
-Rather fascinating ones, if I do say so myself. They're built atop Steam's rather marvelous collection of APIs, which I've wrangled into something properly entertaining. <Note number={1}>The whole thing is powered by a delightful combination of the Steam Store API and SteamSpy API, with a dash of AllOrigins as our CORS proxy?</Note>
-
+Rather fascinating ones, if I do say so myself. <Note number={1}>The whole thing is powered by a delightful combination of the Steam Store API and SteamSpy API, with a dash of AllOrigins as our CORS proxy?</Note>
+ They're built atop Steam's rather marvelous collection of APIs, which I've wrangled into something properly entertaining. 
 You see, whilst tinkering with Steam's vast data repositories (as one does), I discovered there's something rather compelling about turning all these numbers and metrics into proper challenges. The first tests your ability to gauge which games have earned more acclaim from Steam's notoriously particular reviewers. The second, well, that's a bit of visual puzzle where you'll need to identify games through increasingly less pixelated images. Quite clever, if you don't mind me saying.
 
 Getting all the data to work together was a right faff at first, like trying to herd cats in the rain. But I got there in the end, and now it's smooth as silk. The APIs chuck out everything I need: player counts, reviews, the lot. Dead handy once you've got your head round it.
@@ -185,4 +185,4 @@ Right, let me tell ye about what makes this hing tick. We've got [React](https:/
 
 Listen, we couldnae have done any of this without a few crucial bits and bobs. First off, big thanks tae [Valve](https://www.valvesoftware.com/) for the Steam platform and their APIs - without them we'd just be staring at an empty screen like it was the last train home. Pure grateful to the [SteamSpy](https://steamspy.com/) team an' all - their data's been more reliable than a Glasgow taxi driver in the rain.
 
-And we cannae forget the folks at [AllOrigins](https://allorigins.win/) <Note number={8}>I'm no entirely sure if using a CORS proxy is the right way to go about this, but it's working for now. If you're from Valve or AllOrigins reading this and you're no happy about it, just give us a shout and we'll sort something else out.</Note> without their proxy service, we'd be stuck trying tae get these APIs talking to each other like trying tae arrange a night out in a WhatsApp group. Never happening, but they sorted it right out. 
+And we cannae forget the folks at [AllOrigins](https://allorigins.win/) <Note number={6}>I'm no entirely sure if using a CORS proxy is the right way to go about this, but it's working for now. If you're from Valve or AllOrigins reading this and you're no happy about it, just give us a shout and we'll sort something else out.</Note> without their proxy service, we'd be stuck trying tae get these APIs talking to each other like trying tae arrange a night out in a WhatsApp group. Never happening, but they sorted it right out. 

@@ -1,8 +1,13 @@
 import { GameList } from "./HomeMenu"
 import { GameCarousel, POPULAR_GAMES_1, POPULAR_GAMES_2 } from "./GameCarousel"
+import { useLayoutEffect } from 'react'
 import './Home.css'
 
 export function Home() {
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="home-container">
       <div className="home-content">

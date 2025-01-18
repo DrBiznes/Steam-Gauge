@@ -96,6 +96,24 @@
 .about-content p {
   margin-bottom: 1.5rem;
   color: hsl(var(--foreground)/0.9);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.75;
+}
+
+.about-content a {
+  color: #168f48;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: all 0.2s ease-out;
+}
+
+.about-content a:hover {
+  color: #0d5f2f;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
 }
 
 .about-content ul {
@@ -107,6 +125,9 @@
 .about-content li {
   margin-bottom: 0.5rem;
   color: hsl(var(--foreground)/0.9);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.75;
 }
 
 /* Mobile responsiveness */

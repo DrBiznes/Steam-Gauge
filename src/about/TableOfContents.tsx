@@ -2,69 +2,74 @@ import React, { useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function TableOfContents() {
+interface TableOfContentsProps {
+  contentRef: React.RefObject<HTMLDivElement>;
+}
+
+export function TableOfContents({ contentRef }: TableOfContentsProps) {
   const location = useLocation();
   const navigate = useNavigate();
   
   const sections = [
-    { id: 'steam-gauge', text: 'Steam Gauge' },
+    { id: 'about-steam-gauge', text: 'About Steam Gauge' },
     { 
-      id: 'features', 
-      text: 'Features',
+      id: 'how-the-hing-works', 
+      text: 'How The Hing Works',
       subsections: [
-        { id: 'library-analysis', text: 'Library Analysis' },
-        { id: 'game-discovery', text: 'Game Discovery' },
-        { id: 'playtime-insights', text: 'Playtime Insights' }
+        { id: 'the-apis', text: 'The APIs' },
+        { id: 'zustand', text: 'Zustand' }
       ]
     },
-    { id: 'how-it-works', text: 'How It Works' },
     { 
-      id: 'tech-stack', 
-      text: 'Tech Stack',
+      id: 'the-games', 
+      text: 'The Games',
       subsections: [
-        { id: 'frontend', text: 'Frontend' },
-        { id: 'backend', text: 'Backend' }
+        { id: 'gauge-ing-game', text: 'Gauge-ing Game' },
+        { id: 'cover-artfuscation', text: 'Cover Artfuscation' }
       ]
     },
-    { id: 'future-plans', text: 'Future Plans' },
+    { id: 'tech-stack', text: 'Tech Stack' },
+    { id: 'acknowledgments', text: 'Acknowledgments' }
   ];
-
-  useEffect(() => {
-    const hash = location.hash.replace('#', '');
-    if (hash) {
-      setTimeout(() => {
-        const element = document.getElementById(hash);
-        if (element) {
-          const yOffset = -20;
-          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-      }, 100);
-    }
-  }, [location.hash]);
 
   const handleSectionClick = (sectionId: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     
-    if (sectionId === 'steam-gauge') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      navigate('/about');
-      return;
+    if (!contentRef.current) return;
+
+    const headings = contentRef.current.querySelectorAll('h1, h2, h3');
+    let targetElement: HTMLElement | null = null;
+
+    // First try to find by ID
+    targetElement = document.getElementById(sectionId);
+
+    // If not found, try to find by heading text
+    if (!targetElement) {
+      for (const heading of headings) {
+        if (heading.textContent?.toLowerCase().replace(/\s+/g, '-') === sectionId) {
+          targetElement = heading as HTMLElement;
+          break;
+        }
+      }
     }
 
-    navigate(`/about#${sectionId}`);
+    if (targetElement) {
+      const yOffset = -120; // Adjust based on your header height
+      const y = targetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({
+        top: y,
+        behavior: 'smooth'
+      });
 
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const yOffset = -20;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      // Update URL hash after scrolling
+      navigate(`/about#${sectionId}`);
     }
   };
 
   return (
     <nav className="sticky top-8">
-      <h4 className="text-4xl font-black font-sans text-foreground mb-6 bg-[#168f48] text-white px-4 py-2">
+      <h4 className="text-4xl font-black font-sans text-foreground mb-8 bg-[#168f48] text-white px-4 py-2">
         Contents
       </h4>
       <Separator className="mb-8" />
@@ -73,7 +78,7 @@ export function TableOfContents() {
           {sections.map((section) => (
             <li key={section.id}>
               <a
-                href={section.id === 'steam-gauge' ? '#' : `#${section.id}`}
+                href={`#${section.id}`}
                 className="block font-sans text-xl font-medium text-foreground hover:text-[#168f48] transition-colors"
                 onClick={handleSectionClick(section.id)}
               >
