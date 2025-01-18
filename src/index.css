@@ -89,7 +89,7 @@
     overflow-y: scroll;
   }
   body {
-    background-color: hsl(var(--background));
+    background-color: hsl(var(--valve-dark-gray));
     color: hsl(var(--foreground));
     font-family: 'DM Sans', system-ui, sans-serif;
     margin: 0;
