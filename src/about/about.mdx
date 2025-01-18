@@ -2,117 +2,187 @@ import { Note } from '../about/Note';
 import { CodeBlock } from '../about/CodeBlock';
 import { useState } from 'react';
 
-# About Steam-Gauge
+# About Steam Gauge!
 
-Your personal Steam library analyzer and game discovery tool. Steam Gauge helps you explore Steam's vast gaming landscape through interactive challenges and data-driven insights. <Note number={1}>This project was inspired by my fascination with Steam's public APIs and the wealth of data available about gaming trends and player behavior.</Note>
+I made two games.
+Rather fascinating ones, if I do say so myself. They're built atop Steam's rather marvelous collection of APIs, which I've wrangled into something properly entertaining. <Note number={1}>The whole thing is powered by a delightful combination of the Steam Store API and SteamSpy API, with a dash of AllOrigins as our CORS proxy?</Note>
 
-## The Challenges
+You see, whilst tinkering with Steam's vast data repositories (as one does), I discovered there's something rather compelling about turning all these numbers and metrics into proper challenges. The first tests your ability to gauge which games have earned more acclaim from Steam's notoriously particular reviewers. The second, well, that's a bit of visual puzzle where you'll need to identify games through increasingly less pixelated images. Quite clever, if you don't mind me saying.
 
-At its core, Steam Gauge offers two distinct gaming experiences designed to test your knowledge of gaming trends and Steam's vast library.
+Getting all the data to work together was a right faff at first, like trying to herd cats in the rain. But I got there in the end, and now it's smooth as silk. The APIs chuck out everything I need: player counts, reviews, the lot. Dead handy once you've got your head round it.
+
+## How The Hing Works
+
+Right then, let me tell ye how this whole contraption works. Pure dead brilliant when ye think about it. Been coding since before they put the cone on the Duke of Wellington's head, so trust me when I say this setup's a proper bobby dazzler.
+
+### The APIs
+
+I've got two APIs daein all the heavy lifting, right:
+
+1. **The SteamSpy API** - Pure class this one, gives me aw the numbers I could want. Player counts, review scores, the lot
+2. **Steam's ain Store API** - Dead fancy, tells me everything else aboot the games. What they're about, when they came oot, that kind of thing
+
+Now, browsers can be proper awkward buggers about talking tae these APIs directly - like trying tae get into the Garage without a ticket. So I've got this thing called AllOrigins that sorts it. Take a look at how I sweet talk the data oot of SteamSpy <Note number={2}>Built in some retry logic an' all, cause sometimes these APIs can be about as reliable as the Glasgow weather.</Note>
+
+<CodeBlock title="API Request Handler" language="typescript">{`async function getSteamSpyGames(request: string, params: Record<string, string> = {}): Promise<Game[]> {
+  // See whit we're after
+  const queryParams = new URLSearchParams({ request, ...params })
+  const steamspyUrl = \`\${STEAMSPY_API}?\${queryParams}\`
+  const url = \`\${CORS_PROXY}\${encodeURIComponent(steamspyUrl)}\`
+  
+  // Gonnae no dae that? Gonnae dae this instead
+  const response = await fetchWithRetry(url)
+  const data = await response.json()
+  
+  // Sort oot the good stuff fae the mince
+  const gamesArray = Object.values(data) as SteamSpyGame[]
+  const validGames = gamesArray
+    .map(convertSteamSpyGame)
+    .filter(game => 
+      game.steamScore > 0 && 
+      game.totalReviews && game.totalReviews > 500 &&
+      game.name &&
+      game.steamId
+    )
+
+  return validGames // There ye go, sorted
+}`}</CodeBlock>
+
+Dead simple when ye break it doon like that. The code's just asking nicely for the data, waiting till it gets what it wants (tries a few times if it has tae), then makes sure everything's proper before sending it back. Like a bouncer at the Barrowlands, but for data.
+
+### Zustand
+
+Right, let's talk about how I keep track of everything. I'm using this wee thing called Zustand - pure magic for keeping all yer data in order. <Note number={3}>Proper simple tae use but mighty powerful under the hood, like a souped-up Vauxhall Corsa.</Note>
+
+Think of it like the big score board at Hampden Park it keeps track of who's winning, who's playing, and what's happening in the game. Let me show you what my setup looks like under the bonnet:
+
+<CodeBlock title="Zustand Store" language="typescript">{`export const useGaugeStore = create<GaugeStore>()(
+  persist(
+    (set, get) => ({
+      currentMode: null,
+      currentGenre: null,
+      isLoading: false,
+      gameModeStates: {} as GameModeStates,
+
+      setGameMode: (mode: GameMode, genre?: string) => {
+        const currentStore = get()
+        const modeKey = mode === 'genre' ? \`genre-\${genre}\` : mode
+        
+        const existingState = currentStore.gameModeStates[modeKey]
+        const newModeState = existingState || createInitialModeState()
+        const needsGames = !existingState || !newModeState.gamePool.length === 0
+
+        set({
+          currentMode: mode,
+          currentGenre: genre || null,
+          isLoading: needsGames,
+          gameModeStates: {
+            ...currentStore.gameModeStates,
+            [modeKey]: newModeState
+          }
+        })
+      }
+    }),
+    {
+      name: 'game-storage',
+      partialize: (state) => ({
+        gameModeStates: Object.fromEntries(
+          Object.entries(state.gameModeStates).map(([key, value]) => [
+            key,
+            {
+              highScore: value.highScore || 0,
+              currentScore: value.currentScore || 0
+            }
+          ])
+        )
+      })
+    }
+  )
+)`}</CodeBlock>
+
+Looks like a right mouthful, but it's pure straightforward once ye get yer head round it. Keeps track of yer high scores even when ye close the browser - saves them tae local storage, like putting yer favorites in the pub's till for next time. The whole thing's more organized than my maw's kitchen cupboards, and twice as clever.
+
+## The Games
+
+Right then, let me tell ye about these two wee games I've cobbled together.
 
 ### Gauge-ing Game
 
-The first challenge puts your intuition about game popularity to the test. Can you guess which game has better Steam reviews? <Note number={2}>Review scores are calculated based on the ratio of positive to negative reviews, making it a fascinating measure of player satisfaction rather than just raw popularity.</Note>
+Here's the first yin - ye've got tae figure out which game's got the better reviews on Steam. Pure tricky this one, because the SteamSpy API disnae just give me a nice score - naw, it chucks a pile of positive and negative reviews at me, and I've got tae work it out myself. <Note number={4}>I take all the thumbs up and thumbs down, add them up and work out the percentage. Makes it fair for games that have thousands of reviews against ones that only have hundreds.</Note>
 
-Here's how the scoring system works:
+Let me walk you through how I crunch the numbers
 
-<CodeBlock title="Score Calculation" language="typescript" collapsed={false}>{`function calculateScore(positive: number, negative: number): number {
-  const totalReviews = positive + negative;
-  if (totalReviews === 0) return 0;
+<CodeBlock title="Score Calculation" language="typescript">{`function calculateScore(positive: number, negative: number): number {
+  const totalReviews = positive + negative
+  if (totalReviews === 0) return 0
   
-  return Math.round((positive / totalReviews) * 100);
+  return Math.round((positive / totalReviews) * 100)
+}
+
+async function makeGuess(position: 'left' | 'right'): Promise<void> {
+  const store = get()
+  const modeKey = store.currentMode === 'genre' 
+    ? \`genre-\${store.currentGenre}\` 
+    : store.currentMode!
+
+  const modeState = store.gameModeStates[modeKey]
+  const leftScore = modeState.leftGame.steamScore
+  const rightScore = modeState.rightGame.steamScore
+
+  const isCorrect = (position === 'left' && leftScore > rightScore) ||
+                   (position === 'right' && rightScore > leftScore)
+
+  // Update score and continue game...
 }`}</CodeBlock>
 
 ### Cover Artfuscation
 
-The second challenge tests your knowledge of game visuals. You'll see a pixelated game cover that becomes clearer with each wrong guess. <Note number={3}>The pixelation effect is achieved using HTML Canvas and clever image manipulation, allowing for smooth transitions between different levels of clarity.</Note>
+Fer the second game, I'm playing a wee bit of hide and seek with Steam's game covers. Take these fancy high-resolution images from the Steam Store API, run them through my special wee image mangler, and bob's yer uncle - ye've got yerself a proper guessing game. <Note number={5}>The real magic's in the Canvas API - lets me mess about with the pixels like I'm playing with a digital Etch A Sketch, making everything nice and smooth-like when I change the blur.</Note>
 
-Here's a glimpse at how we handle the pixelation:
+I use the Canvas API to pixelate the images. Magic is whats it is
 
-<CodeBlock title="Pixelation Effect" language="typescript" collapsed={true}>{`const pixelateImage = (
+<CodeBlock title="Pixelation Effect" language="typescript">{`const pixelateImage = (
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
   canvas: HTMLCanvasElement,
   pixelSize: number
 ) => {
-  const w = canvas.width;
-  const h = canvas.height;
+  const w = canvas.width
+  const h = canvas.height
 
   // Draw original image
-  ctx.drawImage(image, 0, 0, w, h);
+  ctx.drawImage(image, 0, 0, w, h)
 
   if (pixelSize > 1) {
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = w;
-    tempCanvas.height = h;
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
+    tempCanvas.width = w
+    tempCanvas.height = h
 
     if (tempCtx) {
-      tempCtx.drawImage(ctx.canvas, 0, 0);
-      ctx.clearRect(0, 0, w, h);
+      tempCtx.drawImage(ctx.canvas, 0, 0)
+      ctx.clearRect(0, 0, w, h)
       
       // Create pixelation effect
-      const sw = w / pixelSize;
-      const sh = h / pixelSize;
+      const sw = w / pixelSize
+      const sh = h / pixelSize
       
-      ctx.drawImage(tempCanvas, 0, 0, w, h, 0, 0, sw, sh);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, w, h);
+      ctx.drawImage(tempCanvas, 0, 0, w, h, 0, 0, sw, sh)
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, w, h)
     }
   }
 }`}</CodeBlock>
 
-## Technical Stack
+Pure poetry in motion, that code. Takes yer pristine image, chops it up intae wee squares, then puts it back together like a jigsaw puzzle that's had a few too many pieces enlarged. Each time ye guess wrong, I make those squares a bit smaller, and the picture gets that wee bit clearer. It's like when yer granny's trying tae tune in the telly, except I'm doing it with purpose, ken?
 
-Steam Gauge is built with modern web technologies, emphasizing performance and user experience. <Note number={4}>The entire application is built using React and TypeScript, ensuring type safety and better developer experience.</Note>
+## Tech Stack
 
-### Frontend Architecture
+Right, let me tell ye about what makes this hing tick. We've got [React](https://react.dev) and [TypeScript](https://typescriptlang.org) doing the heavy lifting, with [Tailwind CSS](https://tailwindcss.com) making everything look proper smart. [Framer Motion](https://framer.com/motion) keeps it all moving smooth-like, while [Zustand](https://github.com/pmndrs/zustand) keeps track of everything like a well-organized bookie. Topped it off with [React Query](https://tanstack.com/query) tae handle all our API shenanigans.
 
-The frontend is built with:
-- React for UI components
-- TypeScript for type safety
-- Tailwind CSS for styling
-- Framer Motion for animations
-- Zustand for state management
-
-Here's an example of our state management setup:
-
-<CodeBlock title="Game State Management" language="typescript" collapsed={true}>
-{`export interface GameState {
-  leftGame: Game | null;
-  rightGame: Game | null;
-  revealed: boolean;
-  isTransitioning: boolean;
-}`}
-</CodeBlock>
-
-### API Integration
-
-The application interfaces with multiple Steam APIs to gather game data. <Note number={5}>We use a combination of the Steam Store API and SteamSpy API to gather comprehensive game information, including review scores, player counts, and metadata.</Note>
-
-## Design Philosophy
-
-The project's design philosophy emphasizes:
-1. Clean, minimal interfaces
-2. Smooth animations and transitions
-3. Responsive design that works on all devices
-4. Clear feedback for user actions
-
-<Note number={6}>The UI design draws inspiration from Steam's dark theme while incorporating modern design principles and smoother animations.</Note>
-
-## Future Plans
-
-We're constantly working on improving Steam Gauge with new features and refinements. Some upcoming additions include:
-- More game modes focused on different aspects of Steam games
-- Enhanced social features for sharing scores
-- Additional game metadata and statistics
-- Expanded genre coverage and filtering options <Note number={7}>Want to contribute? Check out our GitHub repository and feel free to submit pull requests or feature suggestions!</Note>
 
 ## Acknowledgments
 
-This project wouldn't be possible without the amazing gaming community and the various APIs and tools that make it work. Special thanks to:
-- Valve for the Steam platform and APIs
-- The SteamSpy team for their valuable data
-- Our open-source contributors
+Listen, we couldnae have done any of this without a few crucial bits and bobs. First off, big thanks tae [Valve](https://www.valvesoftware.com/) for the Steam platform and their APIs - without them we'd just be staring at an empty screen like it was the last train home. Pure grateful to the [SteamSpy](https://steamspy.com/) team an' all - their data's been more reliable than a Glasgow taxi driver in the rain.
 
-<Note number={8}>While we use Steam's data, this project is not affiliated with or endorsed by Valve Corporation.</Note>
+And we cannae forget the folks at [AllOrigins](https://allorigins.win/) <Note number={8}>I'm no entirely sure if using a CORS proxy is the right way to go about this, but it's working for now. If you're from Valve or AllOrigins reading this and you're no happy about it, just give us a shout and we'll sort something else out.</Note> without their proxy service, we'd be stuck trying tae get these APIs talking to each other like trying tae arrange a night out in a WhatsApp group. Never happening, but they sorted it right out. 
