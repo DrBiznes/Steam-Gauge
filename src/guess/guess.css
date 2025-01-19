@@ -276,39 +276,129 @@
 @media (max-width: 1024px) {
   .guess-card-container {
     padding: 1rem;
+    max-width: 100%;
   }
 
   .guess-content-wrapper {
-    flex-direction: column;
+    flex-direction: column-reverse;
     height: auto;
     gap: 1rem;
+    align-items: center;
   }
 
   .guess-cover-container {
     height: 350px;
-    width: 250px;
+    width: 233px;
+    margin: 0 auto;
   }
 
   .guess-hints-container {
-    height: 350px;
-    min-width: 100%;
+    height: auto;
+    min-height: 150px;
+    max-height: none;
+    min-width: 0;
+    width: 100%;
+    overflow: visible;
   }
 
-  .game-title {
-    font-size: 1.25rem;
+  .hints-list {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0.25rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .game-stats {
-    font-size: 0.8125rem;
+  .hint-card {
+    flex: 0 0 auto;
+    width: 85%;
+    max-width: 300px;
+    scroll-snap-align: start;
+    height: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .hint-card.basic {
+    background: rgba(247, 72, 67, 0.1);
+    border-color: rgba(247, 72, 67, 0.2);
+  }
+
+  .hint-card.enhanced {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+
+  .hint-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    height: auto !important;
+    opacity: 1 !important;
+  }
+
+  .hint-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .hint-text {
-    font-size: 0.8125rem;
+    display: block;
+    height: auto !important;
+    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hints-list {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hints-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Add scroll indicators */
+  .hints-scroll-indicator {
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  .scroll-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .scroll-dot.active {
+    background: rgba(255, 255, 255, 0.8);
   }
 }
 
-/* Additional Media Query for Smaller Screens */
 @media (max-width: 640px) {
+  .guess-card-container {
+    padding: 0.75rem;
+  }
+
   .guess-content-wrapper {
     gap: 0.75rem;
   }
@@ -319,7 +409,6 @@
   }
 
   .guess-hints-container {
-    height: 300px;
     padding: 0.75rem;
   }
 
@@ -327,20 +416,29 @@
     padding: 0.75rem;
   }
 
-  .guess-page-title {
-    font-size: 1.25rem;
-  }
-
-  .game-title {
-    font-size: 1.25rem;
-  }
-
-  .game-stats {
-    font-size: 0.8125rem;
-  }
-
   .hint-text {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .hint-type {
+    font-size: 0.7rem;
+  }
+
+  .hint-header {
+    margin-bottom: 0.25rem;
+  }
+
+  .hints-title {
+    font-size: 1rem;
+  }
+
+  .hints-count {
+    font-size: 0.75rem;
+  }
+
+  .hint-card {
+    width: 90%;
   }
 }
 
