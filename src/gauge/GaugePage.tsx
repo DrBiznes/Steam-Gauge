@@ -88,13 +88,13 @@ export function GaugePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className={`text-4xl md:text-4xl text-2xl font-bold text-white px-4 py-2 ${
+          <h1 className={`text-2xl md:text-4xl font-bold text-white px-4 py-2 ${
             currentMode === 'top100in2weeks' ? 'bg-[#2563eb]' :
             currentMode === 'top100forever' ? 'bg-[#dc2626]' :
             currentMode === 'genre' ? 'bg-[#059669]' :
             'bg-[#F74843]'
           }`}>{pageTitle}</h1>
-          <div className="text-xl md:text-xl text-lg text-white px-4 py-2 bg-[#2F2F2F]">
+          <div className="text-lg md:text-xl text-white px-4 py-2 bg-[#2F2F2F]">
             Score: {currentScore} | High Score: {highScore}
           </div>
         </motion.div>
