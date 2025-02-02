@@ -1,11 +1,13 @@
 import { Game, GameMode } from '../gauge/types'
 import { toast } from '../components/ui/use-toast'
-import top100FallbackData from '../genreDB/top100fallback.json'
 
 const STEAMSPY_API = 'https://steamspy.com/api.php'
 const CORS_PROXY = 'https://api.allorigins.win/raw?url='
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // 1 second
+
+// Update the import path for the fallback data
+const TOP100_FALLBACK_URL = '/genreDB/top100fallback.json'
 
 interface SteamSpyGame {
   appid: number
@@ -80,7 +82,10 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Respo
 async function getTop100Fallback(): Promise<Game[]> {
   console.log('Loading fallback data...')
   try {
-    const gamesArray = Object.values(top100FallbackData) as SteamSpyGame[]
+    // Update to fetch from public folder instead of importing
+    const response = await fetchWithRetry(TOP100_FALLBACK_URL)
+    const data = await response.json()
+    const gamesArray = Object.values(data) as SteamSpyGame[]
     
     console.log('Successfully loaded fallback data')
     
@@ -201,7 +206,8 @@ async function getSteamSpyGames(request: string, params: Record<string, string> 
 async function getGamesFromLocalDB(genre: string): Promise<Game[]> {
   console.log(`Attempting to load ${genre} games from local DB...`)
   try {
-    const response = await fetchWithRetry(`/src/genreDB/${genre.toLowerCase()}.json`)
+    // Use absolute path
+    const response = await fetch(`/genreDB/${genre.toLowerCase()}.json`)
     const data = await response.json()
     const gamesArray = Object.values(data) as SteamSpyGame[]
     
